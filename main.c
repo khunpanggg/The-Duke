@@ -2,15 +2,16 @@
 #include <time.h>
 #include <stdlib.h>
 int Board[5][5]; // Y X
-void setupboard();
-void viewboradnow();
-void movetroop(int x1, int y1, int x2, int y2);
-void summon(int player);
+void setupboard(); //ไว้เริ่มเล่น
+void viewboradnow(); //ปริ้นกระดาษให้ดู
+void movetroop(int x1, int y1, int x2, int y2); //เดิน กะ กิน
+void summon(int player); //สุ่มเรียกตัวละคร
 struct Troop{
 	int x;
 	int y;
-	int left;
-} troop[41];
+	int left;//เหลือกี่่ตัว
+} troop[41];//สร้างไว้คราวๆก่อน 1-20 p1 21-40 p2   1เเละ21 เป็นDuke 0เป็นช่องว่าง
+
 int main(){
 	int p,c = 0;
 	while(c != 4){
@@ -48,6 +49,7 @@ void setupboard(){
 	for(i = 1; i <= 41; i++)	{
 		troop[i].left = 1;
 	}
+	troop[0].left = 0;
 	viewboradnow();
 	while((ans != 3)&& (ans != 2)){
 	printf("Player1  plan Duke on Y ( 2 or 3 )\n");
