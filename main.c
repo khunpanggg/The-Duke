@@ -248,8 +248,7 @@ void SetColor(int ForgC)
 
 int CanMove(int num,int x,int y){
 	int i,j,k, distance, ABSdis;
-	if (num == 1|| num == 21)
-	{
+	if (num == 1|| num == 21){
 		if (troop[num].filp == 0)// %i%
 		{
 			distance = x-troop[num].x ;
@@ -287,6 +286,22 @@ int CanMove(int num,int x,int y){
 			}
 			return 1;
 			
+		}
+	}
+	else if ((num==2)||(num==3)||(num==4)||(num==22)||(num==23)||(num==24))//2-4 22-24 footman
+	{
+		if (troop[num].filp == 0){
+			distance = abs(y-troop[num].y)+abs(x-troop[num].x)
+			if (distance == 1){
+				if ((Board[y][x]==0)||(Is_enemy(num,Board[y][x]))){
+					return 1;
+				}
+				else{return 0;}
+			}
+			else{return 0;}
+		}
+		else if (if (troop[num].filp == 1))	{
+			/* code */
 		}
 	}
 }
