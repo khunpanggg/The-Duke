@@ -291,7 +291,7 @@ int CanMove(int num,int x,int y){
 	else if ((num==2)||(num==3)||(num==4)||(num==22)||(num==23)||(num==24))//2-4 22-24 footman
 	{
 		if (troop[num].filp == 0){
-			distance = abs(y-troop[num].y)+abs(x-troop[num].x)
+			distance = abs(y-troop[num].y)+abs(x-troop[num].x);
 			if (distance == 1){
 				if ((Board[y][x]==0)||(Is_enemy(num,Board[y][x]))){
 					return 1;
@@ -300,7 +300,7 @@ int CanMove(int num,int x,int y){
 			}
 			else{return 0;}
 		}
-		else if (if (troop[num].filp == 1))	{
+		else if (troop[num].filp == 1) {
 			/* code */
 		}
 	}
