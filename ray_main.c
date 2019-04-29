@@ -17,7 +17,7 @@ const int screenHeight = 640;
 
 
 void drawMenu(); // Draw menu
-void drawGameboard(double starting); // Draw game board
+void drawGameboard(double starting,Texture2D scarfy, Texture2D board_pic); // Draw game board
 struct GameBoard initializeBoard(); // Initialize board
 Vector2 mousePoint;
 
@@ -34,7 +34,9 @@ typedef struct GameBoard {
     int size_y;
     struct Troop mark[4][4];
 };
+Vector2 position = { 90.0f, 70.0f };
 int page = 0; // 0 is menu, 1 is game board, 2 is how to
+int troop_tie = 0;
 int main()
 {
     // Initialization
@@ -48,6 +50,17 @@ int main()
 
     bool selected[37] = { false };
     SetTargetFPS(60);
+
+    Image image = LoadImage("resources/board.png");
+    ImageResize(&image, screenWidth, screenHeight);
+    Texture2D board_pic = LoadTextureFromImage(image);
+
+    Image imag = LoadImage("resources/Troop.png");        // Texture loading
+    ImageResize(&imag, 7520, 95*0.9);
+    Texture2D scarfy = LoadTextureFromImage(imag);
+
+    
+
     //--------------------------------------------------------------------------------------
 
     // Main game loop
@@ -66,7 +79,7 @@ int main()
             drawMenu();
         } else if (page == 1) {
             playingTime = GetTime();
-            drawGameboard(playingTime);
+            drawGameboard(playingTime, scarfy,board_pic);
         }
         
         //----------------------------------------------------------------------------------
@@ -111,12 +124,41 @@ void drawMenu() {
     EndDrawing();
 }
 
-void drawGameboard(double starting) {
+void drawGameboard(double starting,Texture2D scarfy, Texture2D board_pic) {
+    Vector2 mousePoint;
+    Rectangle hitbox_onboard[37];
+        for (int i = 0; i < 6; i++)
+        {
+            for (int j = 0; j < 6; j++)
+            {int n = (i*6)+j;
+            hitbox_onboard[n].x = 85+ (j*scarfy.width/76+5*j) ;
+            hitbox_onboard[n].y = 68.0f +(i*scarfy.height-i*2);
+            hitbox_onboard[n].width = scarfy.width/76+6;
+            hitbox_onboard[n].height = scarfy.height-2 ;
+        }}
+    Rectangle frameRec = { 0.0f, 0.0f, (float)scarfy.width/76, (float)scarfy.height };
+    frameRec.x = (2*troop_tie - 1)*(float)scarfy.width/76;
     BeginDrawing();
         ClearBackground(LIGHTGRAY);
-        for (int i = 0; i < GetScreenWidth(); i++) {
-            DrawPixel(i, (GetScreenHeight() / 2) + 100 * cos(starting + i * PI / 180), VIOLET);
+        DrawTexture(board_pic, 0, 0, WHITE);
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) troop_tie += 1;
+        DrawTextureRec(scarfy, frameRec, position, WHITE);
+        
+        for (int i = 0; i < 6; i++)
+        {
+            for (int j = 0; j < 6; j++)
+            {int n = (i*6)+j;
+            mousePoint = GetMousePosition();
+                 if (CheckCollisionPointRec(mousePoint, hitbox_onboard[n]))
+            {
+                DrawRectangle(85+ (j*scarfy.width/76+5*j),68.0f +(i*scarfy.height-i*2), scarfy.width/76+6, scarfy.height-2, RED);
+
+                //if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) page = i+1;
+            }
+            //else DrawRectangle(85+ (j*scarfy.width/76+5*j),68.0f +(i*scarfy.height-i*2), scarfy.width/76+6, scarfy.height-2, WHITE);
+            }
         }
+
     EndDrawing();
 }
 

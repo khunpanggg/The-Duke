@@ -7,7 +7,7 @@
 #include <dos.h>
 #include <dir.h>
 int Board[6][6]; // Y X
-void setupboard(int t);//ไว้เริ่มเล่นset upเกม (T 1ไว้ debug ให้setup auto 0 ไว้แบบปกติ)
+void setupboard(int t);//ไว้เริ่มเล่นset upเกม
 void viewboradnow();//ปริ้นกระดาษให้ดู
 void movetroop(int x1, int y1, int x2, int y2);//เดิน กะ กิน เสด1ตัว
 void summon(int player);//สุ่มเรียกตัวละคร ยังไม่เสด
@@ -279,9 +279,9 @@ void SetColor(int ForgC)
 
 int CanMove(int num,int x,int y){ //1,21 = duke  
 	int i,j,k, distance, ABSdis, disx, disy, tnx= troop[num].x,tny = troop[num].y; //2-4,22-24 = footman
-	disx = x-troop[num].x;disy =y-troop[num].y;distance = abs(disy)+abs(disx);//5-7, 25-27 = PikeMan
-	if (Is_ally(num, Board[y][x])) 	{return 0;}//8, 28 = Assassin 
 	if (num >= 21) y = abs(5-y);
+	disx = x-troop[num].x;disy =y-troop[num].y;distance = abs(disy)+abs(disx);//5-7, 25-27 = PikeMan
+	if (Is_ally(num, Board[y][x])) 	{return 0;}//8, 28 = Assassin                  
 	if (num == 1|| num == 21)//Duke             9, 29 = Bowman
 	{ if (troop[num].filp == 0)// %i%           10, 30 = champion
 		{distance = x-troop[num].x ;            //11, 31 = Gragoon
@@ -352,7 +352,7 @@ int CanMove(int num,int x,int y){ //1,21 = duke
 	else if ((num==5)||(num==6)||(num==7)||(num==25)||(num==26)||(num==27))//5-7, 25-27 = PikeMan 
 	{
 		if ((troop[num].filp == 0))
-		{
+		{ if (abs(x-troop[num].x) > 2)return 0;
 			if (((y-troop[num].y<0)&&(abs(x-troop[num].x)>0)&&((troop[num].y-y)==abs(x-troop[num].x))))
 			{
 				return 1;
@@ -369,7 +369,7 @@ int CanMove(int num,int x,int y){ //1,21 = duke
 				return 1;
 			}
 		}
-	}
+	}/*
 	else if ((num==8)||(num==28))//8,28 = Assassin
 	{
 		if ((troop[num].filp == 0))
@@ -379,7 +379,7 @@ int CanMove(int num,int x,int y){ //1,21 = duke
 			{return 1;/*
 				if (((x-troop[num].x)>0)&&(Board[tny+1][tnx+1]==0)){return 1;}
 				else if (((x-troop[num].x)==0)&&(Board[tny-1][tnx]==0)){return 1;}
-				else if (((x-troop[num].x)<0)&&(Board[tny+1][tnx-1]==0)){return 1;	}*/
+				else if (((x-troop[num].x)<0)&&(Board[tny+1][tnx-1]==0)){return 1;	}
 			}
 		}
 		else if ((troop[num].filp == 1))
@@ -388,11 +388,11 @@ int CanMove(int num,int x,int y){ //1,21 = duke
 			{return 1; /*
 				if (((x-troop[num].x)>0)&&(Board[tny-1][tnx-1]==0)){return 1;}
 				else if (((x-troop[num].x)==0)&&(Board[tny+1][tnx]==0)){return 1;}
-				else if (((x-troop[num].x)<0)&&(Board[tny-1][tnx+1]==0)){return 1;	}*/
+				else if (((x-troop[num].x)<0)&&(Board[tny-1][tnx+1]==0)){return 1;	}
 			}
 		}
-	}
-	else if ((num== 9)||(num==29 ))//  9,29 = Bowman
+	} */
+	else if ((num== 8)||(num==28 ))//  9,29 = Bowman
 	{
 		if ((troop[num].filp == 0))
 		{
@@ -420,7 +420,7 @@ int CanMove(int num,int x,int y){ //1,21 = duke
 			}
 		}
 	}
-	else if ((num== 10)||(num==30 ))// 10,30 = champion
+	else if ((num== 9)||(num==29 ))//  = champion
 	{	distance = abs(y-troop[num].y)+abs(x-troop[num].x);
 		if ((troop[num].filp == 0))
 		{
@@ -442,8 +442,31 @@ int CanMove(int num,int x,int y){ //1,21 = duke
 			}
 		}
 	}
-	else if ((num== 11)||(num==31 ))//11,31 = Gragoon 
+	else if ((num== 10)||(num==30 ))// = Ranger
 	{
+		if ((troop[num].filp == 0))
+		{
+			if (((distance == 3)&&(disy<0))&&((disy==-2)||abs(disx)==2)){return 1;}
+			distance = abs( y-troop[num].y) ;// i
+			//printf("%d\n", distance);// %
+			if (x != troop[num].x){return 0;}
+			ABSdis = abs(distance);
+			for (i = 1; i <= ABSdis; i++){
+				if (distance < 1)	{k = i*-1;}else{k = i;}
+				if (Board[k+troop[num].y][x] != 0)
+				{
+					if ((abs(k) == ABSdis) &&( Is_enemy(num,Board[k+troop[num].y][x])))
+					{
+						return 1;
+					}
+					else{ return 0;}
+				}
+			}
+			return 1;
+		}
+	
+	
+	/*Gragoon
 		if ((troop[num].filp == 0)&&(distance == 1)&&(disy==0))
 		{return 1;}
 		else if ((troop[num].filp == 1))
@@ -470,8 +493,8 @@ int CanMove(int num,int x,int y){ //1,21 = duke
 			}
 			else if ((y-troop[num].y==-2)&&(abs(x-troop[num].x)==1)){return 1;	}
 		}
-	}
-	else if ((num== 12)||(num==32 ))//12,32 = General
+	}*/
+	else if ((num== 11)||(num==31 ))//12,32 = General
 	{
 		if ((troop[num].filp == 0))
 		{
@@ -486,7 +509,7 @@ int CanMove(int num,int x,int y){ //1,21 = duke
 			
 		}
 	}
-	else if ((num== 13)||(num==34 ))//13, 34 = knight
+	else if ((num== 12)||(num==32 ))//13, 34 = knight
 	{
 		if ((troop[num].filp == 0))
 		{
@@ -517,7 +540,7 @@ int CanMove(int num,int x,int y){ //1,21 = duke
 
 		}
 	}
-	else if ((num== 14)||(num== 34 ))// 14, 34 = Marshall
+	else if ((num== 13)||(num== 33 ))// = Marshall
 	{
 		if ((troop[num].filp == 0))
 		{if(disy==0){distance = x-troop[num].x ;            
@@ -548,7 +571,7 @@ int CanMove(int num,int x,int y){ //1,21 = duke
 			}
 		}
 	}
-	else if ((num== 15)||(num==35 ))// 15, 35 = Seer
+	else if ((num== 14)||(num==34 ))// = Seer
 	{
 		if ((troop[num].filp == 0))
 		{
@@ -564,7 +587,7 @@ int CanMove(int num,int x,int y){ //1,21 = duke
 		}
 	
     }
-	else if ((num== 16)||(num==16 ))// 16, 36 = Priest
+	else if ((num== 15)||(num==15 ))//  Priest
 	{
 		if ((troop[num].filp == 0))
 		{if (abs(disy)==abs(disx))
@@ -588,20 +611,41 @@ int CanMove(int num,int x,int y){ //1,21 = duke
 		else if (((abs(tny-y)+abs(tny-y))==4)&&((abs(tny-y)==2)&&(abs(tnx-x)==2))){return 1;}
 		}
 		}
-	else if ((num== 17)||(num==37 ))// 17, 37 = LongBowman
+	
+		else if ((troop[num].filp == 1))
+		{
+			//else if ((((y-troop[num].y)==-2)&&(x-troop[num].x)==0)&&(Board[y-1][x]==0))	return 1;
+			if ((disy)==abs(disx)*-1)
+			{ABSdis = abs(disy);
+			for (i = 1; i <= ABSdis; i++){
+				if (disx < 1)	{k = i*-1;}else{k = i;}
+				if (Board[k+tny][k+tnx] != 0)
+				{
+					if ((abs(k) == ABSdis) &&( Is_enemy(num,Board[k+tny][k+tnx])))
+					{return 1;	}
+					else{ return 0;}
+				}
+			}
+			return 1;
+			}
+			else if ((y-troop[num].y==2)&&(abs(x-troop[num].x)==1)){return 1;}
+			}
+    }
+    else if ((num== 16)||(num==36 ))//11,31 = Jester
 	{
 		if ((troop[num].filp == 0))
-		{
-			if (abs(disx)+abs(disy) == 1){return 1;}
-		}
+		{if (((y-tny)==-1)&&(abs(disx)==1) )return 1;
+		else if ((((y-troop[num].y)==2)&&(x-troop[num].x)==0)&&(Board[y-1][x]==0))return 1;
+		else if ((distance == 3)&&((disy)==2||abs(disx)==2)&&(Board[y][abs(x-tnx)/2]==0)&&(y>1))return 1;
+	     }
+
 		else if ((troop[num].filp == 1))
-		{if (((y-troop[num].y)==1)&&(abs(x-troop[num].x)==1))	{
-				if (((Board[troop[num].y][x]==0)||(Board[y][troop[num].x]==0)))
-				{return 1;	}
+		{if ((((y-tny)==-1)&&(abs(disx)==1)) || (((y-tny)==1)&&(abs(disx)==0)))return 1;
+		else if (abs(x-troop[num].x) > 2)return 0;
+		else if (((y-troop[num].y>0)&&(abs(x-troop[num].x)>0)&&((y-troop[num].y)==abs(x-troop[num].x))))return 1;
 		}
 	}
-    }
-	else if ((num== 18)||(num==38 ))//18, 38 wizard
+	else if ((num== 17)||(num==37 ))//18, 38 wizard
 	{
 		if ((troop[num].filp == 0))
 		{if ((abs(y-troop[num].y)==1)&&(abs(x-troop[num].x)==1))	
