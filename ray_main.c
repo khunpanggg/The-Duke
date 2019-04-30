@@ -186,7 +186,7 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
                 { 
                     newtroop = summon(player);
                     summonint = 1;
-                    DrawRectangle(screenWidth / 4+40, screenHeight *3/ 4+ 90, 190, 50,RED);
+                    //DrawRectangle(screenWidth / 4+40, screenHeight *3/ 4+ 90, 190, 50,RED);
                 }
         for (int i = 0; i < 6; i++)
         {
@@ -202,6 +202,11 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
 
                 if (selectx+selecty != 198)
                 {
+                    /*if (Can_Strike(Board[selecty][selectx], j,i))
+                    {
+                        DrawRectangle(85+ (j*scarfy.width/76+5*j+scarfy.width/76/2),68.0f +(i*scarfy.height-i*2+scarfy.height/2), 10, 10, BLUE);
+                        printf("1111111\n");
+                    }*/
                     if (Can_summon(player,Board[selecty][selectx]))
                         { 
                         DrawRectangle(screenWidth / 4+80, screenHeight *3/ 4+ 90, 190, 50, BROWN);
@@ -209,7 +214,8 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
                         }
                     if (CanMove(Board[selecty][selectx],j,i)&&summonint==0)
                     {
-                        DrawRectangle(85+ (j*scarfy.width/76+5*j),68.0f +(i*scarfy.height-i*2), scarfy.width/76/8+6, scarfy.height/8-2, RED);
+                        DrawRectangle(85+ (j*scarfy.width/76+5*j+scarfy.width/76/2),68.0f +(i*scarfy.height-i*2+scarfy.height/2), 10, 10, RED);
+                        DrawText(FormatText("x%i y%i ",j ,i), 85+ (j*scarfy.width/76+5*j+scarfy.width/76/2),68.0f +(i*scarfy.height-i*2+scarfy.height/2), 25, LIGHTGRAY);
                         
                     }
                 }
@@ -704,6 +710,7 @@ int Can_Strike(int num, int x, int y){
             return 1;
         }
     }
+    return 0;
 }
 
 int CanMove(int num, int x, int y){ //1,21 = duke  
