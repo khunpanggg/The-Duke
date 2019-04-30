@@ -64,9 +64,9 @@ int main()
     Image dukelogo = LoadImage("resources/dukelogo.png");
     Texture2D logo = LoadTextureFromImage(dukelogo);
     Texture2D texture = LoadTextureFromImage(background);
-    Image favicon = LoadImage("favicon.png");
+
     bool selected[37] = { false };
-    SetWindowIcon(favicon);
+    SetWindowIcon(dukelogo);
     SetTargetFPS(60);
 
     Image image = LoadImage("resources/board.png");
