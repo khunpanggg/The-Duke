@@ -11,13 +11,10 @@
 
 #include "raylib.h"
 #include "string.h"
-
-
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>
-
 
 const int screenWidth = 800;
 const int screenHeight = 640;
@@ -33,7 +30,8 @@ void filp_troop(int i);//กลับด้านตัวละคร
 void SetColor(int ForgC);//ตั้งค่าสีตัวอักษร
 void CanMove_map(int x, int y);//ฟังก์ชั่นเช็คว่าตัวนั้นเดินไปได้ไหม (ข้อมูลการเดินทั้งหมดอยู่ตรงนั้น)
 void rotateBoard(); //หมุนกระดาน
-int checkCheckmate(int on_player);
+int checkCheckmate(int on_player); //เช็กว่าตอนนี้ player checkmate ไหม
+int checkLose(int on_player); //เช็กว่าแพ้รึยัง ในรอบของเรา
 void drawMenu(); // Draw menu
 void drawGameboard(Texture2D scarfy, Texture2D board_pic); // Draw game board
 
@@ -47,6 +45,8 @@ struct Troop {
 
 Vector2 mousePoint;
 Vector2 position = { 90.0f, 70.0f };
+Image troop_image;
+Texture2D scarfy;
 int page = 0; // 0 is menu, 1 is game board, 2 is how to
 int troop_tie = 1;
 int setup_board = 0, SET_duke = 0, player = 0, selecty = 99, selectx = 99;
@@ -73,11 +73,9 @@ int main()
     ImageResize(&image, screenWidth, screenHeight);
     Texture2D board_pic = LoadTextureFromImage(image);
 
-    Image imag = LoadImage("resources/Troop.png");        // Texture loading
-    ImageResize(&imag, 7520, 95*0.9);
-    Texture2D scarfy = LoadTextureFromImage(imag);
-
-    
+    troop_image = LoadImage("resources/Troop.png");        // Texture loading
+    ImageResize(&troop_image, 7520, 95*0.9);
+    scarfy = LoadTextureFromImage(troop_image);
 
     //--------------------------------------------------------------------------------------
 
@@ -179,7 +177,7 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
         DrawTexture(board_pic, 0, 0, WHITE);
         //if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) troop_tie += 1;
         //DrawTextureRec(scarfy, frameRec, position, WHITE);
-        
+
         for (int i = 0; i < 6; i++)
         {
             for (int j = 0; j < 6; j++)
@@ -191,47 +189,52 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
                 frameRec.x = (2*Board[i][j]+troop[Board[i][j]].filp)*(float)scarfy.width/76;
                 DrawTextureRec(scarfy, frameRec, position, WHITE);
                 mousePoint = GetMousePosition();
-                if (selectx+selecty != 198)
-                {
-                    if (CanMove(Board[selecty][selectx],j,i))
+                if (!checkLose(0) && !checkLose(1)) {
+                    if (selectx+selecty != 198)
                     {
-                        DrawRectangle(85+ (j*scarfy.width/76+5*j),68.0f +(i*scarfy.height-i*2), scarfy.width/76/8+6, scarfy.height/8-2, RED);
-                        if (Can_summon(player,Board[selecty][selectx]))
-                        { DrawText("Summon", screenWidth / 4+126, screenHeight *3/ 4+ 80, 25, RAYWHITE);
-                        DrawRectangle(screenWidth / 4+26, screenHeight *3/ 4+ 100, 150, 50, BEIGE);
-                        }
-                    }
-                }
-                if (CheckCollisionPointRec(mousePoint, hitbox_onboard[n]))
-                {
-                    if (((Board[i][j]>=21) && player>0) || ((Board[i][j]<21) && player<1 && Board[i][j]!=0))
-                    {
-                        DrawRectangle(85+ (j*scarfy.width/76+5*j),68.0f +(i*scarfy.height-i*2), scarfy.width/76/8+6, scarfy.height/8-2, BLUE);
-                        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))//ถ้าเมาส์คลิกซ้าย
+                        if (CanMove(Board[selecty][selectx],j,i))
                         {
-                            selectx = j;selecty = i;
+                            DrawRectangle(85+ (j*scarfy.width/76+5*j),68.0f +(i*scarfy.height-i*2), scarfy.width/76/8+6, scarfy.height/8-2, RED);
+                            if (Can_summon(player,Board[selecty][selectx]))
+                            { DrawText("Summon", screenWidth / 4+126, screenHeight *3/ 4+ 80, 25, RAYWHITE);
+                            DrawRectangle(screenWidth / 4+26, screenHeight *3/ 4+ 100, 150, 50, BEIGE);
+                            }
                         }
                     }
-                    else if (selectx+selecty != 198 && CanMove(Board[selecty][selectx],j,i)&&IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+                    if (CheckCollisionPointRec(mousePoint, hitbox_onboard[n]))
                     {
-                        movetroop(selectx,selecty,j,i);
-                        if(player==1) {
-                            player = 0;
-                            selectx=99;
-                            selecty=99; 
+                        if (((Board[i][j]>=21) && player>0) || ((Board[i][j]<21) && player<1 && Board[i][j]!=0))
+                        {
+                            DrawRectangle(85+ (j*scarfy.width/76+5*j),68.0f +(i*scarfy.height-i*2), scarfy.width/76/8+6, scarfy.height/8-2, BLUE);
+                            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))//ถ้าเมาส์คลิกซ้าย
+                            {
+                                selectx = j;selecty = i;
+                            }
                         }
-                        else {
-                            player = 1;
-                            selectx=99;
-                            selecty=99; 
-                        }
+                        else if (selectx+selecty != 198 && CanMove(Board[selecty][selectx],j,i)&&IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+                        {
+                            movetroop(selectx,selecty,j,i);
+                            if(player==1) {
+                                player = 0;
+                                selectx=99;
+                                selecty=99; 
+                            }
+                            else {
+                                player = 1;
+                                selectx=99;
+                                selecty=99; 
+                            }
 
-                        rotateBoard();
-                        
+                            rotateBoard();
+                            
+                        }
+                        //if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) page = i+1;(scarfy, frameRec, position, WHITE
                     }
-                    //if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) page = i+1;(scarfy, frameRec, position, WHITE
+                    //else DrawRectangle(85+ (j*scarfy.width/76+5*j),68.0f +(i*scarfy.height-i*2), scarfy.width/76+6, scarfy.height-2, WHITE);
+                } else {
+                    DrawText(FormatText("PLAYER %s lose", checkLose(0) ? "WHITE" : "BLACK"), 
+                        screenWidth / 2 - 325, screenHeight / 2 - 32, 64, RED);
                 }
-                //else DrawRectangle(85+ (j*scarfy.width/76+5*j),68.0f +(i*scarfy.height-i*2), scarfy.width/76+6, scarfy.height-2, WHITE);
             }
         }
         //DrawTextureEx(scarfy, Vector2 position, float rotation, float scale, Color tint);
@@ -585,6 +588,9 @@ void rotateBoard() {
             Board[y][x] = newBoard[y][x];
         }
     }
+
+    ImageFlipVertical(&troop_image);
+    scarfy = LoadTextureFromImage(troop_image);
 }
 
 int checkCheckmate(int on_player) {
@@ -603,6 +609,18 @@ int checkCheckmate(int on_player) {
     return 0;
 }
 
+int checkLose(int on_player) {
+    int ownDuke = (on_player * 20) + 1;
+    for (int y = 0; y < 6; y++) {
+        for (int x = 0; x < 6; x++) {
+            int tr = Board[y][x];
+            if (tr == ownDuke) {
+                return 0;
+            }
+        }
+    }
+    return 1;
+}
 
 int CanMove(int num, int x, int y){ //1,21 = duke  
     int i, j, k, distance, ABSdis, disx, disy, tnx= troop[num].x,tny = troop[num].y; //2-4,22-24 = footman
