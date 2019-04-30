@@ -297,7 +297,7 @@ void drawHowTo() {
             }
         }
     EndDrawing();
-
+}
 void leftout(int i){
     if (troop[i].left != 0)
     {
@@ -941,4 +941,4 @@ int CanMove(int num,int x,int y){ //1,21 = duke
     }
     
     return 0;
-
+}
