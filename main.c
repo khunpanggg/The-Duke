@@ -26,7 +26,7 @@ struct Troop{
 	int left;//เหลือกี่่ตัว
 	int filp;
 	struct pic pic[2][6];//filp line
-} troop[41];//สร้างไว้คราวๆก่อน 1-20 p1 21-40 p2   1เเละ21 เป็นDuke 0เป็นช่องว่าง
+} troop[41];//สร้างไว้คราวๆก่อน 1-20 p0 21-40 p1   1เเละ21 เป็นDuke 0เป็นช่องว่าง
 int main(){
 	int p,c = 0;// p = player c = command
 	setup_troop_pic();
@@ -184,10 +184,11 @@ void filp_troop(int k){
 	else{troop[k].filp = 1;}
 }
 void summon(int player){
-	int re = rand()%(20*player), x,y;
+	int re = rand()%(20*player), x=99,y=99;
 	printf("%d\n", re);
-	printf("X Y\n");
-	scanf("%d %d,",&x,&y);
+	while((abs(troop[20*(player-1)+1].x-x)+abs(troop[20*(player-1)+1].y-y))!=1){
+		printf("X Y\n");
+		scanf("%d %d,",&x,&y);}
 	Board[y][x] = re;
 	leftout(re);
 	troop[re].x = x;
