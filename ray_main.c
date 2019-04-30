@@ -212,7 +212,7 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
                             selectx = j;selecty = i;
                         }
                     }
-                    else if (selectx+selecty != 198&&CanMove(Board[selecty][selectx],j,i)&&IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+                    else if (selectx+selecty != 198 && CanMove(Board[selecty][selectx],j,i)&&IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
                     {
                         movetroop(selectx,selecty,j,i);
                         if(player==1) {
@@ -227,7 +227,8 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
                         }
 
                         rotateBoard();
-                    }   
+                        
+                    }
                     //if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) page = i+1;(scarfy, frameRec, position, WHITE
                 }
                 //else DrawRectangle(85+ (j*scarfy.width/76+5*j),68.0f +(i*scarfy.height-i*2), scarfy.width/76+6, scarfy.height-2, WHITE);
@@ -235,6 +236,9 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
         }
         //DrawTextureEx(scarfy, Vector2 position, float rotation, float scale, Color tint);
         DrawText(FormatText("player%i selectx%i selecty%i",player ,selectx,selecty), 10, 40, 20, LIGHTGRAY);
+        if (checkCheckmate(player)) {
+            DrawText("Checkmate!", 10, 70, 20, LIGHTGRAY);
+        }
     EndDrawing();
 }
 
@@ -414,17 +418,18 @@ void CanMove_map(int x, int y){
 
 void setupboard(Texture2D scarfy, Texture2D board_pic){
     srand(time(NULL));
-    int i, j, ans = 0,jjj = 3,p = 21;
-    for(i=0; i<=5; i++){
+    int i, j, ans = 0, jjj = 3, p = 21;
+    for(i=0; i<=5; i++) {
         for(j=0; j<=5; j++){
                 Board[i][j] = 0;
         }
     }
 
-    for(i = 1; i <= 41; i++)    {
+    for(i = 1; i <= 41; i++) {
         troop[i].left = 1;
         troop[i].filp = 0;
     }
+
     Board[0][1] = 0;//Bug
     
     while((SET_duke != 5)){
@@ -454,79 +459,107 @@ void setupboard(Texture2D scarfy, Texture2D board_pic){
     
     for (int i = 0; i < 6; i++)
     {
-    for (int j = 0; j < 6; j++)
-    {int n = (i*6)+j;
-    troop[Board[i][j]].x =j;troop[Board[i][j]].y =i;
-    mousePoint = GetMousePosition();
-    if (CheckCollisionPointRec(mousePoint, hitbox_onboard[n])){//ถ้าเมาส์อยู่ในช่อง
-        Vector2 position = {85+ (j*scarfy.width/76+5*j),68.0f +(i*scarfy.height-i*2)};
-        if (SET_duke == 0){//วาง Duke
-        if (n == 33 || n == 32) {
-        DrawRectangle(85+ (j*scarfy.width/76+5*j),68.0f +(i*scarfy.height-i*2), scarfy.width/8/76+6, scarfy.height/8-2, BLUE);  
+        for (int j = 0; j < 6; j++)
+        {
+            int n = (i*6)+j;
+            troop[Board[i][j]].x =j;
+            troop[Board[i][j]].y =i;
+            mousePoint = GetMousePosition();
+            if (CheckCollisionPointRec(mousePoint, hitbox_onboard[n])) {//ถ้าเมาส์อยู่ในช่อง
+                Vector2 position = {85+ (j*scarfy.width/76+5*j),68.0f +(i*scarfy.height-i*2)};
+                if (SET_duke == 0){//วาง Duke
+                    if (n == 33 || n == 32) {
+                        DrawRectangle(85+ (j*scarfy.width/76+5*j),68.0f +(i*scarfy.height-i*2), scarfy.width/8/76+6, scarfy.height/8-2, BLUE);  
         
-        DrawTextureRec(scarfy, frameRec, position, WHITE);//หมากขาว
+                        DrawTextureRec(scarfy, frameRec, position, WHITE);//หมากขาว
 
-        frameRec.x = (2*21)*(float)scarfy.width/76;
-        if (n == 33){jjj = 2;}
-        else {jjj = 3;}
-        Vector2 positionn = {85+ (jjj*scarfy.width/76+5*jjj),68.0f +(0*scarfy.height-0*2)};
-        DrawTextureRec(scarfy, frameRec, positionn, WHITE);//หมากดำ
-        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))//ถ้าเมาส์คลิกซ้าย
-            {SET_duke = 1;
-            ans = n;
-            Board[5][ans-30] = 1;leftout(1);
-            if (ans == 33){Board[0][2] = 21;}
-            else{Board[0][3] = 21;}leftout(21);
+                        frameRec.x = (2*21)*(float)scarfy.width/76;
+                        if (n == 33){
+                            jjj = 2;
+                        }
+                        else {
+                            jjj = 3;
+                        }
+                        Vector2 positionn = {85+ (jjj*scarfy.width/76+5*jjj),68.0f +(0*scarfy.height-0*2)};
+                        DrawTextureRec(scarfy, frameRec, positionn, WHITE);//หมากดำ
+                        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))//ถ้าเมาส์คลิกซ้าย
+                        {
+                            SET_duke = 1;
+                            ans = n;
+                            Board[5][ans-30] = 1;leftout(1);
+                            if (ans == 33){Board[0][2] = 21;}
+                            else{
+                                Board[0][3] = 21;
+                            }
+                            leftout(21);
+                        }
+                    }
+                }
+
+                if (SET_duke == 1||SET_duke == 4)
+                {
+                    frameRec.x = (2*22 )*(float)scarfy.width/76;
+                    if((abs(troop[21].x-j)+abs(troop[21].y-i))==1&&(Board[i][j] == 0)){
+                        DrawTextureRec(scarfy, frameRec, position, WHITE);
+                        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))//ถ้าเมาส์คลิกซ้าย
+                        {
+                            p =1;
+                            if (SET_duke == 1) {
+                                Board[i][j] = 22;
+                                leftout(22);
+                                SET_duke = 2;
+                            }
+                            else if (SET_duke == 4) {
+                                Board[i][j] = 23;
+                                leftout(23);
+                                SET_duke = 5;
+                            }
+                        }
+                    }
+                }
+                
+                if (SET_duke == 2||SET_duke == 3)
+                {
+                    frameRec.x = (2*2 )*(float)scarfy.width/76;
+                    if((abs(troop[1].x-j)+abs(troop[1].y-i))==1&&(Board[i][j] == 0)){
+                        DrawTextureRec(scarfy, frameRec, position, WHITE);
+                        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))//ถ้าเมาส์คลิกซ้าย
+                        {
+                            if (SET_duke == 2) {
+                                Board[i][j] = 2;
+                                leftout(2);
+                                SET_duke = 3;p =1;
+                            }
+                            else if (SET_duke == 3) {
+                                Board[i][j] = 3;
+                                leftout(3);
+                                SET_duke = 4;
+                                p = 21;
+                            }
+                        }
+                    }
+                }
             }
-            }
-            }
-        if (SET_duke == 1||SET_duke == 4)
-        {
-        frameRec.x = (2*22 )*(float)scarfy.width/76;
-        if((abs(troop[21].x-j)+abs(troop[21].y-i))==1&&(Board[i][j] == 0)){
-            DrawTextureRec(scarfy, frameRec, position, WHITE);
-            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))//ถ้าเมาส์คลิกซ้าย
-            {p =1;
-            if (SET_duke == 1) {Board[i][j] = 22;leftout(22);SET_duke = 2;}
-            else if (SET_duke == 4) {Board[i][j] = 23;leftout(23);SET_duke = 5;}
-            }
-        }
-        }
-        if (SET_duke == 2||SET_duke == 3)
-        {
-        frameRec.x = (2*2 )*(float)scarfy.width/76;
-        if((abs(troop[1].x-j)+abs(troop[1].y-i))==1&&(Board[i][j] == 0)){
-            DrawTextureRec(scarfy, frameRec, position, WHITE);
-            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))//ถ้าเมาส์คลิกซ้าย
+
+            if (SET_duke == 1 || SET_duke == 4)
             {
-            if (SET_duke == 2) {Board[i][j] = 2;leftout(2);SET_duke = 3;p =1;}
-            else if (SET_duke == 3){ Board[i][j] = 3;leftout(3);SET_duke = 4;p =21;}
+                Vector2 posi = {85+ (j*scarfy.width/76+5*j),68.0f +(i*scarfy.height-i*2)};//จัดใหม่
+                frameRec.x = (2*Board[i][j] )*(float)scarfy.width/76;
+                DrawTextureRec(scarfy, frameRec, posi, WHITE);
+                if(((abs(troop[21].x-j)+abs(troop[21].y-i))==1)&&(Board[i][j] == 0)){
+                    DrawRectangle(85+ (j*scarfy.width/76+5*j),68.0f +(i*scarfy.height-i*2), 10, 10, BLUE);
+                }
             }
-        }
-        }
-        
-
-        
-        }
-    if (SET_duke == 1||SET_duke == 4)
-        {
-        Vector2 posi = {85+ (j*scarfy.width/76+5*j),68.0f +(i*scarfy.height-i*2)};//จัดใหม่
-        frameRec.x = (2*Board[i][j] )*(float)scarfy.width/76;
-        DrawTextureRec(scarfy, frameRec, posi, WHITE);
-        if(((abs(troop[21].x-j)+abs(troop[21].y-i))==1)&&(Board[i][j] == 0)){
-            DrawRectangle(85+ (j*scarfy.width/76+5*j),68.0f +(i*scarfy.height-i*2), 10, 10, BLUE);
-        }
-        }
-    else if (SET_duke == 2||SET_duke == 3)
-    {
-        Vector2 posi = {85+ (j*scarfy.width/76+5*j),68.0f +(i*scarfy.height-i*2)};//จัดใหม่
-        frameRec.x = (2*Board[i][j])*(float)scarfy.width/76;
-        DrawTextureRec(scarfy, frameRec, posi, WHITE);
-        if(((abs(troop[1].x-j)+abs(troop[1].y-i))==1)&&(Board[i][j] == 0)){
-            DrawRectangle(85+ (j*scarfy.width/76+5*j),68.0f +(i*scarfy.height-i*2), 10, 10, BLUE);
-        }
-    }
-    //else DrawRectangle(85+ (j*scarfy.width/76+5*j),68.0f +(i*scarfy.height-i*2), scarfy.width/76+6, scarfy.height-2, WHITE);
+            else if (SET_duke == 2 || SET_duke == 3)
+            {
+                Vector2 posi = {85+ (j*scarfy.width/76+5*j),68.0f +(i*scarfy.height-i*2)};//จัดใหม่
+                frameRec.x = (2*Board[i][j])*(float)scarfy.width/76;
+                DrawTextureRec(scarfy, frameRec, posi, WHITE);
+                if(((abs(troop[1].x-j)+abs(troop[1].y-i))==1)&&(Board[i][j] == 0)){
+                    DrawRectangle(85+ (j*scarfy.width/76+5*j),68.0f +(i*scarfy.height-i*2), 10, 10, BLUE);
+                }
+            }
+        //else DrawRectangle(85+ (j*scarfy.width/76+5*j),68.0f +(i*scarfy.height-i*2), scarfy.width/76+6, scarfy.height-2, WHITE);
         }
     }
 
@@ -555,13 +588,13 @@ void rotateBoard() {
 }
 
 int checkCheckmate(int on_player) {
-    int dukeTroop = Troop[(on_player * 20) + 1];
+    struct Troop dukeTroop = troop[(on_player * 20) + 1];
     int startTroop = (!on_player * 20) + 1;
     for (int y = 0; y < 6; y++) {
         for (int x = 0; x < 6; x++) {
             int tr = Board[y][x];
-            if (tr >= startTroop && tr <= startTroop + 20) {
-                if (CanMove(tr), dukeTroop.x, dukeTroop.y) {
+            if (tr >= startTroop && tr <= startTroop + 20 && tr != 0) {
+                if (CanMove(tr, dukeTroop.x, dukeTroop.y)) {
                     return 1;
                 }
             }
@@ -750,11 +783,12 @@ int CanMove(int num, int x, int y){ //1,21 = duke
                 if (distance < 1)   {k = i*-1;}else{k = i;}
                 if (Board[k+troop[num].y][x] != 0)
                 {
-                    if ((abs(k) == ABSdis) &&( Is_enemy(num,Board[k+troop[num].y][x])))
-                    {
+                    if ((abs(k) == ABSdis) &&( Is_enemy(num,Board[k+troop[num].y][x]))) {
                         return 1;
                     }
-                    else{ return 0;}
+                    else {
+                        return 0;
+                    }
                 }
             }
             return 1;
