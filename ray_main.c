@@ -16,7 +16,8 @@ const int screenWidth = 800;
 const int screenHeight = 640;
 
 
-void drawMenu(); // Draw menu
+
+void drawMenu(Texture2D texture, Texture2D logo); // Draw menu
 void drawGameboard(double starting); // Draw game board
 struct GameBoard initializeBoard(); // Initialize board
 Vector2 mousePoint;
@@ -39,12 +40,16 @@ int main()
 {
     // Initialization
     //--------------------------------------------------------------------------------------
-    
+
     double playingTime = 0;
     char testString[100];
     struct GameBoard board = initializeBoard(4, 4);
 
     InitWindow(screenWidth, screenHeight, "The Duke");
+    Image background = LoadImage("resources/background.png");
+    Image dukelogo = LoadImage("resources/dukelogo.png");
+    Texture2D logo = LoadTextureFromImage(dukelogo);
+    Texture2D texture = LoadTextureFromImage(background);
 
     bool selected[37] = { false };
     SetTargetFPS(60);
@@ -63,10 +68,13 @@ int main()
         // Draw
         //----------------------------------------------------------------------------------
         if (page == 0) {
-            drawMenu();
+            drawMenu(texture, logo);
         } else if (page == 1) {
             playingTime = GetTime();
             drawGameboard(playingTime);
+        }
+        else if (page == 2) {
+            drawHowTo();
         }
         
         //----------------------------------------------------------------------------------
@@ -79,10 +87,14 @@ int main()
 
 }
 
-void drawMenu() {
+void drawMenu(Texture2D texture, Texture2D logo) {
     BeginDrawing();
+    
         ClearBackground(LIGHTGRAY);
         DrawText("The Duke", screenWidth / 2 - (15 * strlen("The Duke")), screenHeight / 4, 50, RAYWHITE);
+        DrawTexture(logo , 0, 0, RED);
+        DrawTexture(texture , 0, 0, RED);
+
         mousePoint = GetMousePosition();
         Rectangle menuRecs[3];
         for (int i = 0; i < 3; i++)
@@ -104,9 +116,9 @@ void drawMenu() {
             else DrawRectangle(screenWidth / 3, screenHeight *(2+(i*0.5))/ 4, 300, 50, GRAY);
         }
         
-        DrawText("Start", screenWidth / 3+126, screenHeight *2/ 4+ 12, 25, RAYWHITE);
-        DrawText("How to play", screenWidth / 3+60, screenHeight *2.5/ 4+ 12, 25, RAYWHITE);
-        DrawText("Exit", screenWidth / 3+126, screenHeight *3/ 4+ 12, 25, RAYWHITE);
+        DrawText("Start", screenWidth / 3 + 125, screenHeight *2/ 4+ 12, 25, RAYWHITE);
+        DrawText("How to play", screenWidth / 3 + 90, screenHeight *2.5/ 4+ 12, 25, RAYWHITE);
+        DrawText("Exit", screenWidth / 3 + 125, screenHeight *3/ 4+ 12, 25, RAYWHITE);
 
     EndDrawing();
 }
@@ -132,4 +144,66 @@ struct GameBoard initializeBoard(int x, int y) {
         }
     }    
     return board;
+}
+
+void drawHowTo() {
+    BeginDrawing();
+        ClearBackground(LIGHTGRAY);
+        DrawRectangle(screenWidth/2 - 250, screenHeight/2 - 250, 500, 500, BLACK);
+        DrawRectangle(screenWidth/2 - 242.5, screenHeight/2 - 242.5, 485, 485, RAYWHITE);
+
+        DrawText("How To Play",screenWidth/2 - 85, screenHeight/2 - 220, 30,BLACK);
+        Rectangle menuNext[3];
+        mousePoint = GetMousePosition();
+        for (int i = 0; i < 3; i++)
+        {
+            menuNext[i].x = 170 +(i*200);
+            menuNext[i].y = 490;
+            menuNext[i].width = 60;
+            menuNext[i].height = 60;
+        }
+
+        for (int i = 0; i < 3; i++)    // Iterate along all the rectangles
+        {
+           if (CheckCollisionPointRec(mousePoint, menuNext[i]))
+            {
+                if(i==0){
+                    DrawRectangle(menuNext[i].x, menuNext[i].y, 60, 60, RED);
+                    DrawText("<", menuNext[i].x+25, menuNext[i].y-4, 75,BLACK);
+
+                    if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)){
+                        DrawText("Pang NIchapat", menuNext[i].x+25, menuNext[i].y-4, 25,BLACK);
+                    }
+                }
+                if(i==1){
+                    DrawRectangle(menuNext[i].x-5, menuNext[i].y, 100, 60, RED);
+                    DrawText("Home", menuNext[i].x+12, menuNext[i].y+14, 30,BLACK);
+
+                    if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)){
+                        page = 0;
+                    }
+                }
+                if(i==2){
+                    DrawRectangle(menuNext[i].x, menuNext[i].y, 60, 60, RED);
+                    DrawText(">", menuNext[i].x+25, menuNext[i].y-4, 75,BLACK);
+
+                    if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)){
+                        page = 0;
+                    }
+                }
+            }
+            else if (i==0){
+                DrawRectangle(menuNext[i].x, menuNext[i].y, 60, 60, GRAY);
+                DrawText("<", menuNext[i].x+25, menuNext[i].y-4, 75,BLACK);
+            }
+            else if (i==1){
+                DrawRectangle(menuNext[i].x-5, menuNext[i].y, 100, 60, GRAY);
+                DrawText("Home", menuNext[i].x+12, menuNext[i].y+14, 30,BLACK);
+            }
+            else if (i==2){
+                DrawRectangle(menuNext[i].x, menuNext[i].y, 60, 60, GRAY);
+                DrawText(">", menuNext[i].x+25, menuNext[i].y-4, 75,BLACK);
+            }
+        }
+    EndDrawing();
 }
