@@ -33,19 +33,17 @@ void filp_troop(int i);//กลับด้านตัวละคร
 void SetColor(int ForgC);//ตั้งค่าสีตัวอักษร
 void CanMove_map(int x, int y);//ฟังก์ชั่นเช็คว่าตัวนั้นเดินไปได้ไหม (ข้อมูลการเดินทั้งหมดอยู่ตรงนั้น)
 void rotateBoard(); //หมุนกระดาน
-
+int checkCheckmate(int on_player);
+void drawMenu(); // Draw menu
+void drawGameboard(Texture2D scarfy, Texture2D board_pic); // Draw game board
 
 struct Troop {
-
     int x;
     int y;
     bool isAlive;
     int left;//เหลือกี่่ตัว
     int filp;
 } troop[41];//สร้างไว้คราวๆก่อน 1-20 p1 21-40 p2   1เเละ21 เป็นDuke 0เป็นช่องว่าง
-
-void drawMenu(); // Draw menu
-void drawGameboard(Texture2D scarfy, Texture2D board_pic); // Draw game board
 
 Vector2 mousePoint;
 Vector2 position = { 90.0f, 70.0f };
@@ -66,8 +64,9 @@ int main()
     Image dukelogo = LoadImage("resources/dukelogo.png");
     Texture2D logo = LoadTextureFromImage(dukelogo);
     Texture2D texture = LoadTextureFromImage(background);
-
+    Image favicon = LoadImage("favicon.png");
     bool selected[37] = { false };
+    SetWindowIcon(favicon);
     SetTargetFPS(60);
 
     Image image = LoadImage("resources/board.png");
@@ -142,7 +141,10 @@ void drawMenu(Texture2D texture, Texture2D logo) {
             {
                 DrawRectangle(screenWidth / 3, screenHeight *(2+(i*0.5))/ 4, 300, 50, RED);
 
-                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) page = i+1;
+                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+                    page = i+1;
+                    setup_board = 0, SET_duke = 0, player = 0, selecty = 99, selectx = 99;
+                }
             }
             else DrawRectangle(screenWidth / 3, screenHeight *(2+(i*0.5))/ 4, 300, 50, GRAY);
         }
@@ -157,7 +159,7 @@ void drawMenu(Texture2D texture, Texture2D logo) {
 void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
     Vector2 mousePoint;
     Rectangle hitbox_onboard[37];
-    Rectangle summonbox= {screenWidth / 4+126, screenHeight *3/ 4+ 12, 25};
+    Rectangle summonbox = {screenWidth / 4+126, screenHeight *3/ 4+ 12, 25};
     for (int i = 0; i < 6; i++)
     {
         for (int j = 0; j < 6; j++)
@@ -552,9 +554,25 @@ void rotateBoard() {
     }
 }
 
+int checkCheckmate(int on_player) {
+    int dukeTroop = Troop[(on_player * 20) + 1];
+    int startTroop = (!on_player * 20) + 1;
+    for (int y = 0; y < 6; y++) {
+        for (int x = 0; x < 6; x++) {
+            int tr = Board[y][x];
+            if (tr >= startTroop && tr <= startTroop + 20) {
+                if (CanMove(tr), dukeTroop.x, dukeTroop.y) {
+                    return 1;
+                }
+            }
+        }
+    }
+    return 0;
+}
 
-int CanMove(int num,int x,int y){ //1,21 = duke  
-    int i,j,k, distance, ABSdis, disx, disy, tnx= troop[num].x,tny = troop[num].y; //2-4,22-24 = footman
+
+int CanMove(int num, int x, int y){ //1,21 = duke  
+    int i, j, k, distance, ABSdis, disx, disy, tnx= troop[num].x,tny = troop[num].y; //2-4,22-24 = footman
     //if (num >= 21) y = abs(5-y);
     disx = x-troop[num].x;disy =y-troop[num].y;distance = abs(disy)+abs(disx);//5-7, 25-27 = PikeMan
     if (Is_ally(num, Board[y][x]))  {return 0;}//8, 28 = Assassin                  
@@ -697,7 +715,8 @@ int CanMove(int num,int x,int y){ //1,21 = duke
         }
     }
     else if ((num== 9)||(num==29 ))//  = champion
-    {   distance = abs(y-troop[num].y)+abs(x-troop[num].x);
+    {   
+        distance = abs(y-troop[num].y)+abs(x-troop[num].x);
         if ((troop[num].filp == 0))
         {
             
