@@ -26,7 +26,7 @@ int Board[6][6]; // Y X
 void setupboard(Texture2D scarfy, Texture2D board_pic);//ไว้เริ่มเล่นset upเกม
 void viewboradnow();//ปริ้นกระดาษให้ดู
 void movetroop(int x1, int y1, int x2, int y2);//เดิน กะ กิน เสด1ตัว
-void summon(int player);//สุ่มเรียกตัวละคร ยังไม่เสด
+int summon(int p);//สุ่มเรียกตัวละคร ยังไม่เสด
 void setup_troop_pic();//ตั้งเเค่ตัวละคร
 void viewboradnum();//ดูรหัสตัวละครบนกระดาน
 void filp_troop(int i);//กลับด้านตัวละคร
@@ -49,7 +49,8 @@ Vector2 mousePoint;
 Vector2 position = { 90.0f, 70.0f };
 int page = 0; // 0 is menu, 1 is game board, 2 is how to
 int troop_tie = 1;
-int setup_board = 0, SET_duke = 0, player = 0, selecty = 99, selectx = 99;
+int setup_board = 0, SET_duke = 0, player = 0, selecty = 99, selectx = 99,newtroop = 0 ;
+int summonint = 0;
 int main()
 {
     // Initialization
@@ -88,15 +89,21 @@ int main()
         
         // Draw
         //----------------------------------------------------------------------------------
-        if (page == 0) {
+        if (page == 0) 
+        {
             drawMenu();
-        } else if (page == 1) {
-            if (setup_board == 0) {
+        } 
+        else if (page == 1) 
+        {
+            if (setup_board == 0) 
+            {
                 setupboard(scarfy, board_pic);
             }
-            else {
+            else
+            {
                 drawGameboard(scarfy, board_pic);
             }
+        
         }
         
         //----------------------------------------------------------------------------------
@@ -144,7 +151,8 @@ void drawMenu() {
 void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
     Vector2 mousePoint;
     Rectangle hitbox_onboard[37];
-    Rectangle summonbox= {screenWidth / 4+126, screenHeight *3/ 4+ 12, 25};
+    Rectangle summonbox = {screenWidth / 4+80, screenHeight *3/ 4+ 90, 190, 50};
+    
     for (int i = 0; i < 6; i++)
     {
         for (int j = 0; j < 6; j++)
@@ -164,7 +172,13 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
         DrawTexture(board_pic, 0, 0, WHITE);
         //if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) troop_tie += 1;
         //DrawTextureRec(scarfy, frameRec, position, WHITE);
-        
+        mousePoint = GetMousePosition();
+        if (CheckCollisionPointRec(mousePoint, summonbox) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && summonint  == 0)
+                { 
+                    newtroop = summon(player);
+                    summonint = 1;
+                    DrawRectangle(screenWidth / 4+40, screenHeight *3/ 4+ 90, 190, 50,RED);
+                }
         for (int i = 0; i < 6; i++)
         {
             for (int j = 0; j < 6; j++)
@@ -176,17 +190,21 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
                 frameRec.x = (2*Board[i][j]+troop[Board[i][j]].filp)*(float)scarfy.width/76;
                 DrawTextureRec(scarfy, frameRec, position, WHITE);
                 mousePoint = GetMousePosition();
+
                 if (selectx+selecty != 198)
                 {
-                    if (CanMove(Board[selecty][selectx],j,i))
+                    if (Can_summon(player,Board[selecty][selectx]))
+                        { 
+                        DrawRectangle(screenWidth / 4+80, screenHeight *3/ 4+ 90, 190, 50, BROWN);
+                        DrawText("Summon", screenWidth / 4+100, screenHeight *3/ 4+ 100, 40, RAYWHITE);
+                        }
+                    if (CanMove(Board[selecty][selectx],j,i)&&summonint==0)
                     {
                         DrawRectangle(85+ (j*scarfy.width/76+5*j),68.0f +(i*scarfy.height-i*2), scarfy.width/76/8+6, scarfy.height/8-2, RED);
-                        if (Can_summon(player,Board[selecty][selectx]))
-                        { DrawText("Summon", screenWidth / 4+126, screenHeight *3/ 4+ 80, 25, RAYWHITE);
-                        DrawRectangle(screenWidth / 4+26, screenHeight *3/ 4+ 100, 150, 50, BEIGE);
-                        }
+                        
                     }
                 }
+                
                 if (CheckCollisionPointRec(mousePoint, hitbox_onboard[n]))
                 {
                     if (((Board[i][j]>=21) && player>0) || ((Board[i][j]<21) && player<1 && Board[i][j]!=0))
@@ -197,7 +215,7 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
                             selectx = j;selecty = i;
                         }
                     }
-                    else if (selectx+selecty != 198&&CanMove(Board[selecty][selectx],j,i)&&IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+                    else if (selectx+selecty != 198&&CanMove(Board[selecty][selectx],j,i)&&IsMouseButtonPressed(MOUSE_LEFT_BUTTON)&&summonint==0)
                     {
                         movetroop(selectx,selecty,j,i);
                         if(player==1) {
@@ -213,6 +231,36 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
 
                         rotateBoard();
                     }   
+                    else if ( summonint == 1)
+                    { int pnum = player*20+1;
+                        
+                    if((abs(troop[pnum].x-j)+abs(troop[pnum].y-i))==1&&(Board[i][j] == 0))
+                    {
+                        Rectangle frameR = { 0.0f, 0.0f, (float)scarfy.width/76, (float)scarfy.height };
+                        frameR.x = (2*newtroop)*(float)scarfy.width/76;
+                        DrawTextureRec(scarfy, frameR, position, WHITE);
+                        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+                        {
+                           Board[i][j] = newtroop;
+                        leftout(newtroop);
+                        troop[newtroop].x = j;
+                        troop[newtroop].y = i;
+                        summonint =0;
+                        rotateBoard();
+                         if(player==1) {
+                            player = 0;
+                            selectx=99;
+                            selecty=99; 
+                        }
+                        else {
+                            player = 1;
+                            selectx=99;
+                            selecty=99; 
+                        }
+                        }
+                        
+                        }
+                        }
                     //if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) page = i+1;(scarfy, frameRec, position, WHITE
                 }
                 //else DrawRectangle(85+ (j*scarfy.width/76+5*j),68.0f +(i*scarfy.height-i*2), scarfy.width/76+6, scarfy.height-2, WHITE);
@@ -222,7 +270,6 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
         DrawText(FormatText("player%i selectx%i selecty%i",player ,selectx,selecty), 10, 40, 20, LIGHTGRAY);
     EndDrawing();
 }
-
 void leftout(int i){
     if (troop[i].left != 0)
     {
@@ -246,47 +293,53 @@ void filp_troop(int k){
         troop[k].filp = 1;
     }
 }
-int Can_summon(int p,int troop){
-    if ((troop ==21)&&((p ==1)))
+int Can_summon(int p,int trop){
+    if ((trop ==21)&&((p ==1)))
     {
-        return 1;
+        for (int y = 0; y < 6; y++)
+        {
+            for (int x = 0; x < 6; x++)
+            {
+                if ((abs(troop[p].x-x)+abs(troop[p].y-y))!=1 && Is_ally(troop[p], Board[y][x])!= 1)
+                {
+                    return 1;
+                }
+            }
+        }
+        
     }
-    else if((troop ==1)&&((p ==0)))
+    else if((trop ==1)&&((p ==0)))
     {
-        return 1;
+       for (int y = 0; y < 6; y++)
+        {
+            for (int x = 0; x < 6; x++)
+            {
+                if ((abs(troop[p].x-x)+abs(troop[p].y-y))!=1 && Is_ally(troop[p], Board[y][x])!= 1)
+                {
+                    return 1;
+                }
+            }
+        }
     }
     else
     {
         return 0;
     }
 }
-void summon(int p){
-    int x=99,y=99, pl =20*(p)+1,re;
-    if (p == 0 )
+int summon(int p){
+    int x=99,y=99, pl =20*(p)+1,re= 0;
+    while (troop[re].left == 0){
+        if (p == 0 )
     {
-        re = rand()%17;
+        re = rand()%18;
     }
     else 
     {
-        re = (rand()%17)+21;
+        re = (rand()%18)+21;
     }
 
-    if (troop[re].left == 0)
-    {
-        summon(pl);
     }
-    else
-    {
-        while((abs(troop[pl].x-x)+abs(troop[pl].y-y))!=1 && Is_ally(troop[pl], Board[y][x])!= 1){
-            //printf("X Y\n");
-            //scanf("%d %d,",&x,&y);}
-            }
-            Board[y][x] = re;
-            leftout(re);
-            troop[re].x = x;
-            troop[re].y = y;
-        
-    }
+    return re;
 }
 
 int Is_ally(int numA, int numB){
@@ -373,7 +426,7 @@ void setupboard(Texture2D scarfy, Texture2D board_pic){
     //if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) troop_tie += 1;
     if (SET_duke == 0) DrawText("Player 1\nPlan The Duke", screenWidth / 3, screenHeight /2, 50, RAYWHITE);//จัดใหม่
     if (SET_duke == 1||SET_duke == 4 ) DrawText("Player 2\nPlan Footman", screenWidth / 2.5, screenHeight /4, 50, BLACK);
-    if (SET_duke == 2||SET_duke == 3) DrawText("Player 1\nPlan Footman", screenWidth / 2, screenHeight /4, 50, RAYWHITE);
+    if (SET_duke == 2||SET_duke == 3) DrawText("Player 1\nPlan Footman", screenWidth / 3, screenHeight /2, 50, RAYWHITE);
     
     for (int i = 0; i < 6; i++)
     {
@@ -541,13 +594,11 @@ int CanMove(int num,int x,int y){ //1,21 = duke
                 {
                     return 1;
                 }
-                else{ return 0;}
             }
-            else if ((((troop[num].y-y)==2)&&(x-troop[num].x==0)&&(Board[y-1][x]==0)))
+            else if ((((troop[num].y-y)==2)&&(x-troop[num].x==0)&&(Board[y+1][x]==0)))
             {
                 return 1;
             }
-            else{return 0;}
         }
     }
     else if ((num==5)||(num==6)||(num==7)||(num==25)||(num==26)||(num==27))//5-7, 25-27 = PikeMan 
@@ -867,3 +918,4 @@ int CanMove(int num,int x,int y){ //1,21 = duke
     
     return 0;
 }
+
