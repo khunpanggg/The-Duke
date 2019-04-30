@@ -28,6 +28,7 @@ void setup_troop_pic();//ตั้งเเค่ตัวละคร
 void viewboradnum();//ดูรหัสตัวละครบนกระดาน
 void filp_troop(int i);//กลับด้านตัวละคร
 void SetColor(int ForgC);//ตั้งค่าสีตัวอักษร
+int CanMove(int num, int x, int y);
 void CanMove_map(int x, int y);//ฟังก์ชั่นเช็คว่าตัวนั้นเดินไปได้ไหม (ข้อมูลการเดินทั้งหมดอยู่ตรงนั้น)
 void rotateBoard(); //หมุนกระดาน
 int checkCheckmate(int on_player); //เช็กว่าตอนนี้ player checkmate ไหม
@@ -49,7 +50,7 @@ Image troop_image;
 Texture2D scarfy;
 int page = 0; // 0 is menu, 1 is game board, 2 is how to
 int troop_tie = 1;
-int setup_board = 0, SET_duke = 0, player = 0, selecty = 99, selectx = 99,newtroop = 0 ;
+int setup_board = 0, SET_duke = 0, player = 0, selecty = 99, selectx = 99, newtroop = 0;
 int summonint = 0;
 int main()
 {
@@ -157,6 +158,7 @@ void drawMenu(Texture2D texture, Texture2D logo) {
 
     EndDrawing();
 }
+
 void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
     Vector2 mousePoint;
     Rectangle hitbox_onboard[37];
@@ -183,11 +185,12 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
         //DrawTextureRec(scarfy, frameRec, position, WHITE);
         mousePoint = GetMousePosition();
         if (CheckCollisionPointRec(mousePoint, summonbox) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && summonint  == 0)
-                { 
-                    newtroop = summon(player);
-                    summonint = 1;
-                    //DrawRectangle(screenWidth / 4+40, screenHeight *3/ 4+ 90, 190, 50,RED);
-                }
+        { 
+            newtroop = summon(player);
+            summonint = 1;
+            //DrawRectangle(screenWidth / 4+40, screenHeight *3/ 4+ 90, 190, 50,RED);
+        }
+
         for (int i = 0; i < 6; i++)
         {
             for (int j = 0; j < 6; j++)
@@ -200,7 +203,7 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
                 DrawTextureRec(scarfy, frameRec, position, WHITE);
                 mousePoint = GetMousePosition();
 
-                if (selectx+selecty != 198)
+                if (selectx+selecty != 198) // Click on something
                 {
                     /*if (Can_Strike(Board[selecty][selectx], j,i))
                     {
@@ -208,31 +211,32 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
                         printf("1111111\n");
                     }*/
                     if (Can_summon(player,Board[selecty][selectx]))
-                        { 
-                        DrawRectangle(screenWidth / 4+80, screenHeight *3/ 4+ 90, 190, 50, BROWN);
-                        DrawText("Summon", screenWidth / 4+100, screenHeight *3/ 4+ 100, 40, RAYWHITE);
-                        }
-                    if (CanMove(Board[selecty][selectx],j,i)&&summonint==0)
+                    { 
+                        DrawRectangle(screenWidth / 4+80, screenHeight * 3 / 4 + 90, 190, 50, BROWN);
+                        DrawText("Summon", screenWidth / 4+100, screenHeight * 3 / 4+ 100, 40, RAYWHITE);
+                    }
+                    
+                    if (CanMove(Board[selecty][selectx], j, i) && summonint==0)
                     {
                         DrawRectangle(85+ (j*scarfy.width/76+5*j+scarfy.width/76/2),68.0f +(i*scarfy.height-i*2+scarfy.height/2), 10, 10, RED);
                         DrawText(FormatText("x%i y%i ",j ,i), 85+ (j*scarfy.width/76+5*j+scarfy.width/76/2),68.0f +(i*scarfy.height-i*2+scarfy.height/2), 25, LIGHTGRAY);
-                        
                     }
                 }
                 
                 if (CheckCollisionPointRec(mousePoint, hitbox_onboard[n]))
                 {
-                    if (((Board[i][j]>=21) && player>0) || ((Board[i][j]<21) && player<1 && Board[i][j]!=0))
+                    if (((Board[i][j] >= 21 && player == 1) || (Board[i][j] < 21 && player == 0)) && Board[i][j] != 0)
                     {
-                        DrawRectangle(85+ (j*scarfy.width/76+5*j),68.0f +(i*scarfy.height-i*2), scarfy.width/76/8+6, scarfy.height/8-2, BLUE);
+                        DrawRectangle(85 + (j*scarfy.width/76+5*j), 68.0f + (i*scarfy.height-i*2), scarfy.width/76/8+6, scarfy.height/8-2, BLUE);
                         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))//ถ้าเมาส์คลิกซ้าย
                         {
-                            selectx = j;selecty = i;
+                            selectx = j;
+                            selecty = i;
                         }
                     }
-                    else if (selectx+selecty != 198&&CanMove(Board[selecty][selectx],j,i)&&IsMouseButtonPressed(MOUSE_LEFT_BUTTON)&&summonint==0)
+                    else if (selectx+selecty != 198 && CanMove(Board[selecty][selectx], j, i) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && summonint==0)
                     {
-                        movetroop(selectx,selecty,j,i);
+                        movetroop(selectx, selecty, j, i);
                         if(player==1) {
                             player = 0;
                             selectx=99;
@@ -245,46 +249,50 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
                         }
 
                         rotateBoard();
-                    }   
-                    else if ( summonint == 1)
-                    { int pnum = player*20+1;
-                        
-                    if((abs(troop[pnum].x-j)+abs(troop[pnum].y-i))==1&&(Board[i][j] == 0))
+                    }
+                    else if (summonint == 1) // If player already click on summon
                     {
-                        Rectangle frameR = { 0.0f, 0.0f, (float)scarfy.width/76, (float)scarfy.height };
-                        frameR.x = (2*newtroop)*(float)scarfy.width/76;
-                        DrawTextureRec(scarfy, frameR, position, WHITE);
-                        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-                        {
-                           Board[i][j] = newtroop;
-                        leftout(newtroop);
-                        troop[newtroop].x = j;
-                        troop[newtroop].y = i;
-                        summonint =0;
-                        rotateBoard();
-                         if(player==1) {
-                            player = 0;
-                            selectx=99;
-                            selecty=99; 
-                        }
-                        else {
-                            player = 1;
-                            selectx=99;
-                            selecty=99; 
-                        }
-                        }
+                        int pnum = player*20+1;
                         
+                        if((abs(troop[pnum].x-j)+abs(troop[pnum].y-i))==1&&(Board[i][j] == 0))
+                        {
+                            Rectangle frameR = { 0.0f, 0.0f, (float)scarfy.width/76, (float)scarfy.height };
+                            frameR.x = (2*newtroop)*(float)scarfy.width/76;
+                            DrawTextureRec(scarfy, frameR, position, WHITE);
+                            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+                            {
+                                Board[i][j] = newtroop;
+                                leftout(newtroop);
+                                troop[newtroop].x = j;
+                                troop[newtroop].y = i;
+                                summonint =0;
+                                rotateBoard();
+                                if(player==1) {
+                                    player = 0;
+                                    selectx=99;
+                                    selecty=99; 
+                                }
+                                else {
+                                    player = 1;
+                                    selectx=99;
+                                    selecty=99; 
+                                }
+                            }
                         }
-                        }
+                    }
                     //if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) page = i+1;(scarfy, frameRec, position, WHITE
                 }
                 //else DrawRectangle(85+ (j*scarfy.width/76+5*j),68.0f +(i*scarfy.height-i*2), scarfy.width/76+6, scarfy.height-2, WHITE);
             }
         }
         //DrawTextureEx(scarfy, Vector2 position, float rotation, float scale, Color tint);
-        DrawText(FormatText("player%i selectx%i selecty%i",player ,selectx,selecty), 10, 40, 20, LIGHTGRAY);
+        DrawText(FormatText("player%i select_id = %d", player, Board[selecty][selectx]), 10, 40, 20, RED);
+        if (newtroop) {
+            DrawText(FormatText("New troop id %i", newtroop), 10, screenHeight - 40, 20, LIGHTGRAY);
+        }
     EndDrawing();
 }
+
 void drawHowTo() {
     BeginDrawing();
         ClearBackground(LIGHTGRAY);
@@ -346,6 +354,7 @@ void drawHowTo() {
         }
     EndDrawing();
 }
+
 void leftout(int i){
     if (troop[i].left != 0)
     {
@@ -369,6 +378,7 @@ void filp_troop(int k){
         troop[k].filp = 1;
     }
 }
+
 int Can_summon(int p,int trop){
     if ((trop ==21)&&((p ==1)))
     {
@@ -402,6 +412,7 @@ int Can_summon(int p,int trop){
         return 0;
     }
 }
+
 int summon(int p){
     int x=99,y=99, pl =20*(p)+1,re= 0;
     while (troop[re].left == 0){
@@ -532,10 +543,14 @@ void setupboard(Texture2D scarfy, Texture2D board_pic){
                         DrawTextureRec(scarfy, frameRec, positionn, WHITE);//หมากดำ
                         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))//ถ้าเมาส์คลิกซ้าย
                         {
+                            // Set Duke
                             SET_duke = 1;
                             ans = n;
-                            Board[5][ans-30] = 1;leftout(1);
-                            if (ans == 33){Board[0][2] = 21;}
+                            Board[5][ans-30] = 1;
+                            leftout(1);
+                            if (ans == 33) {
+                                Board[0][2] = 21;
+                            }
                             else{
                                 Board[0][3] = 21;
                             }
@@ -544,14 +559,14 @@ void setupboard(Texture2D scarfy, Texture2D board_pic){
                     }
                 }
 
-                if (SET_duke == 1||SET_duke == 4)
+                if (SET_duke == 1 || SET_duke == 4)
                 {
                     frameRec.x = (2*22 )*(float)scarfy.width/76;
                     if((abs(troop[21].x-j)+abs(troop[21].y-i))==1&&(Board[i][j] == 0)){
                         DrawTextureRec(scarfy, frameRec, position, WHITE);
                         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))//ถ้าเมาส์คลิกซ้าย
                         {
-                            p =1;
+                            p = 1;
                             if (SET_duke == 1) {
                                 Board[i][j] = 22;
                                 leftout(22);
@@ -574,12 +589,13 @@ void setupboard(Texture2D scarfy, Texture2D board_pic){
                         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))//ถ้าเมาส์คลิกซ้าย
                         {
                             if (SET_duke == 2) {
-                                Board[i][j] = 2;
+                                Board[i][j] = 2; // Set troop
                                 leftout(2);
-                                SET_duke = 3;p =1;
+                                SET_duke = 3;
+                                p = 1;
                             }
                             else if (SET_duke == 3) {
-                                Board[i][j] = 3;
+                                Board[i][j] = 3; // Set troop
                                 leftout(3);
                                 SET_duke = 4;
                                 p = 21;
@@ -713,52 +729,86 @@ int Can_Strike(int num, int x, int y){
     return 0;
 }
 
-int CanMove(int num, int x, int y){ //1,21 = duke  
-    int i, j, k, distance, ABSdis, disx, disy, tnx= troop[num].x,tny = troop[num].y; //2-4,22-24 = footman
+int CanMove(int num, int x, int y) {
+    /*
+        1,21 = Duke
+        2-4,22-24 = Footman
+        5-7, 25-27 = PikeMan
+        8, 28 = Assassin
+        9, 29 = Bowman
+        10, 30 = Champion
+        11, 31 = Gragoon
+        12, 32 = General
+        14, 34  == Knight
+        15, 35 == Marsall
+     */
+    int i, j, k, distance, ABSdis, disx, disy, tnx= troop[num].x, tny = troop[num].y;
     //if (num >= 21) y = abs(5-y);
-    disx = x-troop[num].x;disy =y-troop[num].y;distance = abs(disy)+abs(disx);//5-7, 25-27 = PikeMan
-    if (Is_ally(num, Board[y][x]))  {return 0;}//8, 28 = Assassin                  
-    if (num == 1|| num == 21)//Duke             9, 29 = Bowman
-    { if (troop[num].filp == 0)// %i%           10, 30 = champion
-        {distance = x-troop[num].x ;            //11, 31 = Gragoon
-            if (distance == 0 || y != troop[num].y){return 0;}//12,32 = General
-            ABSdis = abs(distance);             //14, 34  == Knight
-            for (i = 1; i <= ABSdis; i++){      //15, 35 == Marsall
-                if (distance < 1)   {k = i*-1;}else{k = i;}
+    disx = x - troop[num].x;
+    disy = y - troop[num].y;
+    distance = abs(disy) + abs(disx);
+    if (Is_ally(num, Board[y][x]))  {
+        return 0;
+    }
+
+    if (num == 1|| num == 21) //Duke    
+    {
+        if (troop[num].filp == 0)      
+        {
+            distance = x - troop[num].x;
+            if (distance == 0 || y != troop[num].y) {
+                return 0;
+            }
+            
+            ABSdis = abs(distance);
+            for (i = 1; i <= ABSdis; i++) {
+                if (distance < 1) {
+                    k = i*-1;
+                } else {
+                    k = i;
+                }
+                
                 if (Board[y][k+troop[num].x] != 0)
                 {
-                    if ((abs(k) == ABSdis) &&( Is_enemy(num,Board[y][k+troop[num].x]))&& troop[num].filp == 1)
-                    {
+                    if ((abs(k) == ABSdis) && (Is_enemy(num,Board[y][k+troop[num].x])) && troop[num].filp == 1) {
                         return 1;
                     }
-                    else{ return 0;}
+                    else {
+                        return 0;
+                    }
                 }
             }
             return 1;
-            
         }
-        else if (troop[num].filp == 1){// %
-            distance = y-troop[num].y ;// i
-            //printf("%d\n", distance);// %
-            if (distance == 0 || x != troop[num].x){return 0;}
+        else if (troop[num].filp == 1){
+            distance = y-troop[num].y ;
+            if (distance == 0 || x != troop[num].x) {
+                return 0;
+            }
+            
             ABSdis = abs(distance);
-            for (i = 1; i <= ABSdis; i++){
-                if (distance < 1)   {k = i*-1;}else{k = i;}
+            for (i = 1; i <= ABSdis; i++) {
+                if (distance < 1) {
+                    k = i*-1;
+                } else {
+                    k = i;
+                }
+                
                 if (Board[k+troop[num].y][x] != 0)
                 {
-                    if ((abs(k) == ABSdis) &&( Is_enemy(num,Board[k+troop[num].y][x])))
-                    {
+                    if ((abs(k) == ABSdis) && (Is_enemy(num,Board[k+troop[num].y][x]))) {
                         return 1;
                     }
-                    else{ return 0;}
+                    else {
+                        return 0;
+                    }
                 }
             }
             return 1;
-            
         }
     }
     
-    else if ((num==2)||(num==3)||(num==4)||(num==22)||(num==23)||(num==24))//2-4 22-24 footman
+    else if ((num==2) || (num==3) || (num==4) || (num==22) || (num==23) || (num==24))//2-4 22-24 footman
     {
         if (troop[num].filp == 0){
             distance = abs(y-troop[num].y)+abs(x-troop[num].x);
@@ -783,7 +833,7 @@ int CanMove(int num, int x, int y){ //1,21 = duke
             }
         }
     }
-    else if ((num==5)||(num==6)||(num==7)||(num==25)||(num==26)||(num==27))//5-7, 25-27 = PikeMan 
+    else if ((num==5) || (num==6) || (num==7) || (num==25) || (num==26) || (num==27))//5-7, 25-27 = PikeMan 
     {
         if ((troop[num].filp == 0))
         { if (abs(x-troop[num].x) > 2)return 0;
@@ -826,7 +876,7 @@ int CanMove(int num, int x, int y){ //1,21 = duke
             }
         }
     } */
-    else if ((num== 8)||(num==28 ))//  9,29 = Bowman
+    else if ((num== 8) || (num==28))//  9,29 = Bowman
     {
         if ((troop[num].filp == 0))
         {
@@ -854,7 +904,7 @@ int CanMove(int num, int x, int y){ //1,21 = duke
             }
         }
     }
-    else if ((num== 9)||(num==29 ))//  = champion
+    else if ((num== 9) || (num==29))//  = champion
     {   
         distance = abs(y-troop[num].y)+abs(x-troop[num].x);
         if ((troop[num].filp == 0))
@@ -877,7 +927,7 @@ int CanMove(int num, int x, int y){ //1,21 = duke
             }
         }
     }
-    else if ((num== 10)||(num==30 ))// = Ranger
+    else if ((num== 10)||(num==30))// = Ranger
     {
         if ((troop[num].filp == 0))
         {
@@ -931,7 +981,7 @@ int CanMove(int num, int x, int y){ //1,21 = duke
         }
     }*/
 
-    else if ((num== 11)||(num==31 ))//12,32 = General
+    else if ((num== 11) || (num==31))//12,32 = General
     {
         if ((troop[num].filp == 0))
         {
@@ -946,11 +996,13 @@ int CanMove(int num, int x, int y){ //1,21 = duke
             
         }
     }
-    else if ((num== 12)||(num==32 ))//13, 34 = knight
+    else if ((num== 12) || (num==32))//13, 34 = knight
     {
         if ((troop[num].filp == 0))
         {
-            if (((distance == 2)&&(disy==2))&&(Board[y-1][tnx]==0)){return 1;}
+            if (((distance == 2) && (disy==2)) && (Board[y-1][tnx]==0)) {
+                return 1;
+            }
             else if ((distance == 1)&&(disy!=-1)){return 1;}
             else if ((abs(x-tnx)==1)&&((y-tny)==-2)){return 1;} 
         }
@@ -977,7 +1029,7 @@ int CanMove(int num, int x, int y){ //1,21 = duke
 
         }
     }
-    else if ((num== 13)||(num== 33 ))// = Marshall
+    else if ((num== 13) || (num== 33))// = Marshall
     {
         if ((troop[num].filp == 0))
         {if(disy==0){distance = x-troop[num].x ;            
@@ -995,7 +1047,7 @@ int CanMove(int num, int x, int y){ //1,21 = duke
                 }
             }
             return 1;}
-        else if ((disy == -2&&abs(disx)==2)||(disy == 2&&disx== 0)){return 1;}
+        else if ((disy == -2 && abs(disx)==2)||(disy == 2 && disx== 0)){return 1;}
         }
         else if ((troop[num].filp == 1))
         {
@@ -1008,36 +1060,58 @@ int CanMove(int num, int x, int y){ //1,21 = duke
             }
         }
     }
-    else if ((num== 14)||(num==34 ))// = Seer
+    else if ((num==14) || (num==34))// = Seer
     {
         if ((troop[num].filp == 0))
         {
-            if ((abs(y-troop[num].y)==1)&&(abs(x-troop[num].x)==1)) {
-                if (((Board[troop[num].y][x]==0)||(Board[y][troop[num].x]==0)))
-                {return 1;}}
-            else if (((abs(y-troop[num].y)==2)&&(abs(x-troop[num].x)==0))||((abs(x-troop[num].x)==2)&&abs(y-troop[num].y)==0))
-            {return 1;}
+            if ((abs(y - troop[num].y)==1) && (abs(x - troop[num].x)==1)) {
+                if (Board[y - troop[num].y][x] == 0 || Board[y][x - troop[num].x] == 0 || Is_enemy(Board[y][x], num)) 
+                {
+                    return 1;
+                }
+            }
+            if (((abs(y - troop[num].y) == 2) && (abs(x-troop[num].x) == 0)) || ((abs(x-troop[num].x) == 2) && abs(y-troop[num].y) == 0))
+            {
+                return 1;
+            }
         }
         else if ((troop[num].filp == 1))
-        { if (abs(disx)+abs(disy) == 1){return 1;}
-        else if (((abs(tny-y)+abs(tny-y))==4)&&((abs(tny-y)==2)&&(abs(tnx-x)==2))){return 1;}
+        {
+            if (abs(disx)+abs(disy) == 1) {
+                return 1;
+            }
+        
+            else if (((abs(tny-y)+abs(tny-y))==4)&&((abs(tny-y)==2)&&(abs(tnx-x)==2))) {
+                return 1;
+            }
         }
     
     }
-    else if ((num== 15)||(num==15 ))//  Priest
+    else if ((num==15)||(num==35))//  Priest
     {
         if ((troop[num].filp == 0))
-        {if (abs(disy)==abs(disx))
-            {ABSdis = abs(disy);
-            for (i = 1; i <= ABSdis; i++){
-                if (disx < 1)   {k = i*-1;}else{k = i;}
-                if (Board[k+tny][k+tnx] != 0)
-                {
-                    if ((abs(k) == ABSdis) &&( Is_enemy(num,Board[k+tny][k+tnx])))
-                    {return 1;  }
-                    else{ return 0;}
+        {
+            if (abs(disy)==abs(disx))
+            {
+                ABSdis = abs(disy);
+            
+                for (i = 1; i <= ABSdis; i++){
+                    if (disx < 1) {
+                        k = i*-1;
+                    } else {
+                        k = i;
+                    }
+
+                    if (Board[k+tny][k+tnx] != 0)
+                    {
+                        if ((abs(k) == ABSdis) &&( Is_enemy(num,Board[k+tny][k+tnx]))) {
+                            return 1; 
+                        }
+                        else {
+                            return 0;
+                        }
+                    }
                 }
-            }
             return 1;
             }
         }
@@ -1068,7 +1142,7 @@ int CanMove(int num, int x, int y){ //1,21 = duke
             else if ((y-troop[num].y==2)&&(abs(x-troop[num].x)==1)){return 1;}
             }
     }
-    else if ((num== 16)||(num==36 ))//11,31 = Jester
+    else if ((num== 16) || (num==36))//11,31 = Jester
     {
         if ((troop[num].filp == 0))
         {if (((y-tny)==-1)&&(abs(disx)==1) )return 1;
@@ -1082,7 +1156,7 @@ int CanMove(int num, int x, int y){ //1,21 = duke
         else if (((y-troop[num].y>0)&&(abs(x-troop[num].x)>0)&&((y-troop[num].y)==abs(x-troop[num].x))))return 1;
         }
     }
-    else if ((num== 17)||(num==37 ))//18, 38 wizard
+    else if ((num== 17) || (num==37))//18, 38 wizard
     {
         if ((troop[num].filp == 0))
         {if ((abs(y-troop[num].y)==1)&&(abs(x-troop[num].x)==1))    
