@@ -19,4 +19,4 @@ __The-Duke__ เป็นเกมแนว Abstract strategy game โดยใ�
 # Assistant Teacher
 |ผศ. ดร. กิติ์สุชาต พสุภา|ผศ. ดร. ปานวิทย์ ธุวะนุติ|
 |:-:|:-:|
-|![](pic/teacher/aj.%20Kitsuchart.jpg)|![](pic/teacher/aj.%20Panwit.jpg)|
+|![](pic/teacher/aj.Kitsuchart.jpg)|![](pic/teacher/aj.Panwit.jpg)|
