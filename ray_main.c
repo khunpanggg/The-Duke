@@ -556,8 +556,6 @@ int Can_summon(int p, int trop) {
         int le = 0; // Found left?
         int o = 0;
         // Check Duke on directional can summon?
-        // 
-        DrawText(FormatText("Duke @%d %d", tx, ty), screenWidth / 4, screenHeight * 1 / 4, 18, RED);
         for (int y = -1; y < 2; y += 2) {
             if (ty + y < 0 || ty + y > 5) {
                 continue;
