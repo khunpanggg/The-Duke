@@ -548,26 +548,45 @@ void filp_troop(int k) {
 }
 
 int Can_summon(int p, int trop) {
-    if ((trop == 21) && ((p == 1))) {
-        for (int y = 0; y < 6; y++) {
-            for (int x = 0; x < 6; x++) {
-                if ((abs(troop[p].x - x) + abs(troop[p].y - y)) != 1 && Is_ally(troop[p], Board[y][x]) != 1) {
-                    return 1;
-                }
+    int tx = troop[trop].x;
+    int ty = troop[trop].y;
+    
+    if ((trop == 21 && p == 1) || (trop == 1 && p == 0)) {
+        int dir = 0; // Found summon area
+        int le = 0; // Found left?
+        int o = 0;
+        // Check Duke on directional can summon?
+        // 
+        DrawText(FormatText("Duke @%d %d", tx, ty), screenWidth / 4, screenHeight * 1 / 4, 18, RED);
+        for (int y = -1; y < 2; y += 2) {
+            if (ty + y < 0 || ty + y > 5) {
+                continue;
+            }
+            if (Board[ty + y][tx] == 0 || Is_enemy(trop, Board[ty + y][tx])) {
+                dir = 1;
             }
         }
 
-    } else if ((trop == 1) && ((p == 0))) {
-        for (int y = 0; y < 6; y++) {
-            for (int x = 0; x < 6; x++) {
-                if ((abs(troop[p].x - x) + abs(troop[p].y - y)) != 1 && Is_ally(troop[p], Board[y][x]) != 1) {
-                    return 1;
-                }
+        for (int x = -1; x < 2; x += 2) {
+            if (tx + x < 0 || tx + x > 5) {
+                continue;
+            }
+            if (Board[ty][tx + x] == 0 || Is_enemy(trop, Board[ty][tx + x])) {
+                dir = 1;
             }
         }
-    } else {
-        return 0;
+
+        // Check any troop left?
+        for (int i = trop + 3; i < trop + 16; i++) {
+            if (troop[i].left == 1) {
+                le = 1;
+                break;
+            }
+        }
+        return (le && dir);
     }
+
+    return 0;
 }
 
 int summon(int p) {
