@@ -343,7 +343,9 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
         //DrawRectangle(screenWidth / 4+40, screenHeight *3/ 4+ 90, 190, 50,RED);
     }
 
-    if (checkCheckmate(player)) {
+    if (checkLose(player)) {
+        DrawText(FormatText("Player %d WIN!", !player), 15, 15, 30, RED);
+    } else if (checkCheckmate(player)) {
         DrawText(FormatText("Player %d Checkmate!", player), 15, 15, 30, RED);
     }
 
@@ -378,7 +380,7 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
                 }
             }
 
-            if (CheckCollisionPointRec(mousePoint, hitbox_onboard[n])) {
+            if (CheckCollisionPointRec(mousePoint, hitbox_onboard[n]) && !checkLose(player)) {
                 if (((Board[i][j] >= 21 && player == 1) || (Board[i][j] < 21 && player == 0)) && Board[i][j] != 0) {
                     DrawRectangle(85 + (j * scarfy.width / 76 + 5 * j), 68.0f + (i * scarfy.height - i * 2), scarfy.width / 76 / 8 + 6, scarfy.height / 8 - 2, BLUE);
                     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) //ถ้าเมาส์คลิกซ้าย
