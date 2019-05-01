@@ -393,7 +393,22 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
                     }
 
                     rotateBoard();
-                } else if (summonint == 1) // If player already click on summon
+                }
+                else if (selectx + selecty != 198 && Can_Strike(Board[selecty][selectx], j, i) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && summonint == 0) {
+                    Board[i][j] = 0;
+                    filp_troop(Board[selecty][selectx]);
+                    if (player == 1) {
+                        player = 0;
+                        selectx = 99;
+                        selecty = 99;
+                    } else {
+                        player = 1;
+                        selectx = 99;
+                        selecty = 99;
+                    }
+                    rotateBoard(); 
+                }
+                else if (summonint == 1) // If player already click on summon
                 {
                     int pnum = player * 20 + 1;
 
@@ -862,7 +877,7 @@ int Can_Strike(int num, int x, int y) {
         return 0;
     } else if (Board[y][x] == 0) {
         return 0;
-    } else if ((((num == 5) || (num == 6) || (num == 7) || (num == 25) || (num == 26) || (num == 27)))) {
+    } else if ((((num == 5) || (num == 6) || (num == 7) || (num == 25) || (num == 26) || (num == 27))&& troop[num].filp == 1)) {
         if ((troop[num].y - y == 2) && abs(troop[num].x - x) == 1) {
             return 1;
         }
