@@ -804,6 +804,7 @@ int CanMove(int num, int x, int y) {
         {
             if ((troop[num].filp == 0))
             {
+
                 if ( (((disx)==0)&&(disy<=-2)) || ((abs(disx)>=2)&&((disy)>=2)&&(abs(disx)==abs(disy))))
                 {return 1;/*
                     if (((x-troop[num].x)>0)&&(Board[tny+1][tnx+1]==0)){return 1;}
