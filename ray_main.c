@@ -397,11 +397,11 @@ int summon(int p) {
         if (p == 0) {
             re = rand() % 18;
         } else {
-            re = (rand() % 18) + 21;
+            re = (rand() % 18) + 20;
         }
 
     }
-    return player ? 35 : 15;
+    return re;
 }
 
 int Is_ally(int numA, int numB) {
@@ -448,9 +448,13 @@ void setupboard(Texture2D scarfy, Texture2D board_pic) {
         }
     }
 
-    for (i = 1; i <= 41; i++) {
-        troop[i].left = 1;
+    for (i = 1; i <= 37; i++) {
+        if (!((i >17)&&(i<21)) )
+        {
+            troop[i].left = 1;
         troop[i].filp = 0;
+        }
+        
     }
 
     Board[0][1] = 0; //Bug
@@ -730,7 +734,7 @@ int CanMove(int num, int x, int y) {
                 }
 
                 if (Board[y][k + troop[num].x] != 0) {
-                    if ((abs(k) == ABSdis) && (Is_enemy(num, Board[y][k + troop[num].x])) && troop[num].filp == 1) {
+                    if ((abs(k) == ABSdis) && (Is_enemy(num, Board[y][k + troop[num].x])) ) {
                         return 1;
                     } else {
                         return 0;
@@ -789,6 +793,13 @@ int CanMove(int num, int x, int y) {
         if (troop[num].filp == 0) {
             if (abs(x - troop[num].x) > 2) return 0;
             if (((y - troop[num].y < 0) && (abs(x - troop[num].x) > 0) && ((troop[num].y - y) == abs(x - troop[num].x)))) {
+                if (abs(x - troop[num].x) == 2)
+                {
+                    if (Board[y+1][x-(x - troop[num].x)/2]>0)
+                    {
+                        return 0;
+                    }
+                }
                 return 1;
             }
         } else if (troop[num].filp == 1) {
@@ -861,11 +872,12 @@ int CanMove(int num, int x, int y) {
             if (((distance == 3) && (disy < 0)) && ((disy == -2) || abs(disx) == 2)) {
                 return 1;
             }
-            distance = abs(y - troop[num].y); // i
-            //printf("%d\n", distance);// %
-            if (x != troop[num].x) {
+            else{
+                    distance = y - troop[num].y;
+            if (distance == 0 || x != troop[num].x) {
                 return 0;
             }
+
             ABSdis = abs(distance);
             for (i = 1; i <= ABSdis; i++) {
                 if (distance < 1) {
@@ -883,7 +895,42 @@ int CanMove(int num, int x, int y) {
                 }
             }
             return 1;
-        } else if (troop[num].filp == 1) {
+        }
+    } else if (troop[num].filp == 1) {
+            if ((disy)*-1 == abs(disx)) {
+                ABSdis = abs(disy);
+
+                for (i = 1; i <= ABSdis; i++) {
+                    if (disx < 1) {
+                        k = i * -1;
+                    } 
+                    else {
+                        k = i;
+                    }
+                    if (disy < 1) {
+                        j = i * -1;
+                    } 
+                    else {
+                        j = i;
+                    }
+
+                    if (Board[j + tny][k + tnx] != 0) {
+                        if ((abs(k) == ABSdis) && (Is_enemy(num, Board[j + tny][k + tnx]))) {
+                            return 1;
+                        } else {
+                            return 0;
+                        }
+                    }
+                }
+                return 1;
+            }
+            else if (distance == 3)
+            {
+                if ((disy == 2)&& (abs(disx)==1))
+                {
+                    return 1;
+                }
+            }
 
         }
     }
@@ -1041,12 +1088,19 @@ int CanMove(int num, int x, int y) {
                 for (i = 1; i <= ABSdis; i++) {
                     if (disx < 1) {
                         k = i * -1;
-                    } else {
+                    } 
+                    else {
                         k = i;
                     }
+                    if (disy < 1) {
+                        j = i * -1;
+                    } 
+                    else {
+                        j = i;
+                    }
 
-                    if (Board[k + tny][k + tnx] != 0) {
-                        if ((abs(k) == ABSdis) && (Is_enemy(num, Board[k + tny][k + tnx]))) {
+                    if (Board[j + tny][k + tnx] != 0) {
+                        if ((abs(k) == ABSdis) && (Is_enemy(num, Board[j + tny][k + tnx]))) {
                             return 1;
                         } else {
                             return 0;
