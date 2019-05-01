@@ -366,6 +366,10 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
                     DrawRectangle(85 + (j * scarfy.width / 76 + 5 * j + scarfy.width / 76 / 2), 68.0f + (i * scarfy.height - i * 2 + scarfy.height / 2), 10, 10, RED);
                     DrawText(FormatText("x%i y%i ", j, i), 85 + (j * scarfy.width / 76 + 5 * j + scarfy.width / 76 / 2), 68.0f + (i * scarfy.height - i * 2 + scarfy.height / 2), 25, LIGHTGRAY);
                 }
+                if (Can_Strike(Board[selecty][selectx], j, i) && summonint == 0) {
+                    DrawRectangle(85 + (j * scarfy.width / 76 + 5 * j + scarfy.width / 76 / 2), 68.0f + (i * scarfy.height - i * 2 + scarfy.height / 2), 10, 10, PINK);
+                    DrawText(FormatText("x%i y%i ", j, i), 85 + (j * scarfy.width / 76 + 5 * j + scarfy.width / 76 / 2), 68.0f + (i * scarfy.height - i * 2 + scarfy.height / 2), 25, LIGHTGRAY);
+                }
             }
 
             if (CheckCollisionPointRec(mousePoint, hitbox_onboard[n])) {
