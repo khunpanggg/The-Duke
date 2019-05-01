@@ -24,7 +24,7 @@ void movetroop(int x1, int y1, int x2, int y2); //เดิน กะ กิน 
 int summon(int p); //สุ่มเรียกตัวละคร ยังไม่เสด
 void setup_troop_pic(); //ตั้งเเค่ตัวละคร
 void viewboradnum(); //ดูรหัสตัวละครบนกระดาน
-void filp_troop(int i); //กลับด้านตัวละคร
+void flip_troop(int i); //กลับด้านตัวละคร
 void SetColor(int ForgC); //ตั้งค่าสีตัวอักษร
 int CanMove(int num, int x, int y);
 void CanMove_map(int x, int y); //ฟังก์ชั่นเช็คว่าตัวนั้นเดินไปได้ไหม (ข้อมูลการเดินทั้งหมดอยู่ตรงนั้น)
@@ -40,7 +40,7 @@ struct Troop {
     int y;
     bool isAlive;
     int left; //เหลือกี่่ตัว
-    int filp;
+    int flip;
 }
 troop[41]; //สร้างไว้คราวๆก่อน 1-20 p1 21-40 p2   1เเละ21 เป็นDuke 0เป็นช่องว่าง
 
@@ -317,7 +317,7 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
     for (int i = 0; i < 6; i++) {
         for (int j = 0; j < 6; j++) {
             int n = (i * 6) + j;
-            hitbox_onboard[n].x = 85 + (j * scarfy.width / 76 + 5 * j);
+            hitbox_onboard[n].x = 90 + (j * scarfy.width / 76 + 5 * j);
             hitbox_onboard[n].y = 68.0f + (i * scarfy.height - i * 2);
             hitbox_onboard[n].width = scarfy.width / 76 + 6;
             hitbox_onboard[n].height = scarfy.height - 2;
@@ -355,10 +355,10 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
             troop[Board[i][j]].x = j;
             troop[Board[i][j]].y = i;
             Vector2 position = {
-                85 + (j * scarfy.width / 76 + 5 * j),
+                90 + (j * scarfy.width / 76 + 5 * j),
                 68.0f + (i * scarfy.height - i * 2)
             }; //จัดใหม่
-            frameRec.x = (2 * Board[i][j] + troop[Board[i][j]].filp) * (float) scarfy.width / 76;
+            frameRec.x = (2 * Board[i][j] + troop[Board[i][j]].flip) * (float) scarfy.width / 76;
             DrawTextureRec(scarfy, frameRec, position, WHITE);
             mousePoint = GetMousePosition();
 
@@ -366,7 +366,7 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
             {
                 /*if (Can_Strike(Board[selecty][selectx], j,i))
                 {
-                    DrawRectangle(85+ (j*scarfy.width/76+5*j+scarfy.width/76/2),68.0f +(i*scarfy.height-i*2+scarfy.height/2), 10, 10, BLUE);
+                    DrawRectangle(90+ (j*scarfy.width/76+5*j+scarfy.width/76/2),68.0f +(i*scarfy.height-i*2+scarfy.height/2), 10, 10, BLUE);
                     printf("1111111\n");
                 }*/
                 if (Can_summon(player, Board[selecty][selectx])) {
@@ -375,18 +375,24 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
                 }
 
                 if (CanMove(Board[selecty][selectx], j, i) && summonint == 0) {
-                    DrawRectangle(85 + (j * scarfy.width / 76 + 5 * j + scarfy.width / 76 / 2), 68.0f + (i * scarfy.height - i * 2 + scarfy.height / 2), 10, 10, RED);
-                    DrawText(FormatText("x%i y%i ", j, i), 85 + (j * scarfy.width / 76 + 5 * j + scarfy.width / 76 / 2), 68.0f + (i * scarfy.height - i * 2 + scarfy.height / 2), 25, LIGHTGRAY);
+                    DrawRectangle(90 + (j * scarfy.width / 76 + 5 * j + scarfy.width / 76 / 2), 68.0f + (i * scarfy.height - i * 2 + scarfy.height / 2), 10, 10, RED);
+                    DrawText(FormatText("x%i y%i ", j, i), 90 + (j * scarfy.width / 76 + 5 * j + scarfy.width / 76 / 2), 68.0f + (i * scarfy.height - i * 2 + scarfy.height / 2), 25, LIGHTGRAY);
                 }
                 if (Can_Strike(Board[selecty][selectx], j, i) && summonint == 0) {
-                    DrawRectangle(85 + (j * scarfy.width / 76 + 5 * j + scarfy.width / 76 / 2), 68.0f + (i * scarfy.height - i * 2 + scarfy.height / 2), 10, 10, PINK);
-                    DrawText(FormatText("x%i y%i ", j, i), 85 + (j * scarfy.width / 76 + 5 * j + scarfy.width / 76 / 2), 68.0f + (i * scarfy.height - i * 2 + scarfy.height / 2), 25, LIGHTGRAY);
+                    DrawRectangle(90 + (j * scarfy.width / 76 + 5 * j + scarfy.width / 76 / 2), 68.0f + (i * scarfy.height - i * 2 + scarfy.height / 2), 10, 10, PINK);
+                    DrawText(FormatText("x%i y%i ", j, i), 90 + (j * scarfy.width / 76 + 5 * j + scarfy.width / 76 / 2), 68.0f + (i * scarfy.height - i * 2 + scarfy.height / 2), 25, LIGHTGRAY);
                 }
             }
 
             if (CheckCollisionPointRec(mousePoint, hitbox_onboard[n]) && !checkLose(player)) {
+                if (Board[i][j] != 0 && IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
+                    int fl = !troop[Board[i][j]].flip;
+                    frameRec.x = (2 * Board[i][j] + fl) * (float) scarfy.width / 76;
+                    DrawTextureRec(scarfy, frameRec, position, WHITE);
+                }
+
                 if (((Board[i][j] >= 21 && player == 1) || (Board[i][j] < 21 && player == 0)) && Board[i][j] != 0) {
-                    DrawRectangle(85 + (j * scarfy.width / 76 + 5 * j), 68.0f + (i * scarfy.height - i * 2), scarfy.width / 76 / 8 + 6, scarfy.height / 8 - 2, BLUE);
+                    DrawRectangle(90 + (j * scarfy.width / 76 + 5 * j), 68.0f + (i * scarfy.height - i * 2), scarfy.width / 76 / 8 + 6, scarfy.height / 8 - 2, BLUE);
                     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) //ถ้าเมาส์คลิกซ้าย
                     {
                         selectx = j;
@@ -408,7 +414,7 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
                 }
                 else if (selectx + selecty != 198 && Can_Strike(Board[selecty][selectx], j, i) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && summonint == 0) {
                     Board[i][j] = 0;
-                    filp_troop(Board[selecty][selectx]);
+                    flip_troop(Board[selecty][selectx]);
                     if (player == 1) {
                         player = 0;
                         selectx = 99;
@@ -454,7 +460,7 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
                 }
                 //if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) page = i+1;(scarfy, frameRec, position, WHITE
             }
-            //else DrawRectangle(85+ (j*scarfy.width/76+5*j),68.0f +(i*scarfy.height-i*2), scarfy.width/76+6, scarfy.height-2, WHITE);
+            //else DrawRectangle(90+ (j*scarfy.width/76+5*j),68.0f +(i*scarfy.height-i*2), scarfy.width/76+6, scarfy.height-2, WHITE);
         }
     }
     //DrawTextureEx(scarfy, Vector2 position, float rotation, float scale, Color tint);
@@ -513,7 +519,7 @@ void drawHowTo(Texture2D howto1) {
         ClearBackground(LIGHTGRAY);
         DrawTexture(howto1, 0, 0, WHITE);
         //DrawRectangle(screenWidth/2 - 250, screenHeight/2 - 250, 500, 500, BLACK);
-        //DrawRectangle(screenWidth/2 - 242.5, screenHeight/2 - 242.5, 485, 485, RAYWHITE);
+        //DrawRectangle(screenWidth/2 - 242.5, screenHeight/2 - 242.5, 490, 490, RAYWHITE);
         Rectangle menuNext[3];
         mousePoint = GetMousePosition();
         for (int i = 0; i < 2; i++)
@@ -567,14 +573,14 @@ void leftout(int i) {
 void movetroop(int x1, int y1, int x2, int y2) {
     Board[y2][x2] = Board[y1][x1];
     Board[y1][x1] = 0;
-    filp_troop(Board[y2][x2]);
+    flip_troop(Board[y2][x2]);
 }
 
-void filp_troop(int k) {
-    if (troop[k].filp == 1) {
-        troop[k].filp = 0;
+void flip_troop(int k) {
+    if (troop[k].flip == 1) {
+        troop[k].flip = 0;
     } else {
-        troop[k].filp = 1;
+        troop[k].flip = 1;
     }
 }
 
@@ -657,8 +663,8 @@ void CanMove_map(int x, int y) {
             if (CanMove(Board[y][x], j, i) != 0) {
                 /**/
             }
-            //else if((i==y)&&(j==x)){if (troop[Board[y][x]].filp == 0){printf("i ");}
-            //else if (troop[Board[y][x]].filp == 1){printf("I ");} 
+            //else if((i==y)&&(j==x)){if (troop[Board[y][x]].flip == 0){printf("i ");}
+            //else if (troop[Board[y][x]].flip == 1){printf("I ");} 
         }
         //else{printf("- ");}
         //if (j == 5) {printf(" %d \n", i);}
@@ -678,7 +684,7 @@ void setupboard(Texture2D scarfy, Texture2D board_pic) {
         if (!((i >17)&&(i<21)) )
         {
             troop[i].left = 1;
-        troop[i].filp = 0;
+        troop[i].flip = 0;
         }
         
     }
@@ -691,7 +697,7 @@ void setupboard(Texture2D scarfy, Texture2D board_pic) {
         for (int i = 0; i < 6; i++) {
             for (int j = 0; j < 6; j++) {
                 int n = (i * 6) + j;
-                hitbox_onboard[n].x = 85 + (j * scarfy.width / 76 + 5 * j);
+                hitbox_onboard[n].x = 90 + (j * scarfy.width / 76 + 5 * j);
                 hitbox_onboard[n].y = 68.0f + (i * scarfy.height - i * 2);
                 hitbox_onboard[n].width = scarfy.width / 76 + 6;
                 hitbox_onboard[n].height = scarfy.height - 2;
@@ -721,12 +727,12 @@ void setupboard(Texture2D scarfy, Texture2D board_pic) {
                 mousePoint = GetMousePosition();
                 if (CheckCollisionPointRec(mousePoint, hitbox_onboard[n])) { //ถ้าเมาส์อยู่ในช่อง
                     Vector2 position = {
-                        85 + (j * scarfy.width / 76 + 5 * j),
+                        90 + (j * scarfy.width / 76 + 5 * j),
                         68.0f + (i * scarfy.height - i * 2)
                     };
                     if (SET_duke == 0) { //วาง Duke
                         if (n == 33 || n == 32) {
-                            DrawRectangle(85 + (j * scarfy.width / 76 + 5 * j), 68.0f + (i * scarfy.height - i * 2), scarfy.width / 8 / 76 + 6, scarfy.height / 8 - 2, BLUE);
+                            DrawRectangle(90 + (j * scarfy.width / 76 + 5 * j), 68.0f + (i * scarfy.height - i * 2), scarfy.width / 8 / 76 + 6, scarfy.height / 8 - 2, BLUE);
 
                             DrawTextureRec(scarfy, frameRec, position, WHITE); //หมากขาว
 
@@ -737,7 +743,7 @@ void setupboard(Texture2D scarfy, Texture2D board_pic) {
                                 jjj = 3;
                             }
                             Vector2 positionn = {
-                                85 + (jjj * scarfy.width / 76 + 5 * jjj),
+                                90 + (jjj * scarfy.width / 76 + 5 * jjj),
                                 68.0f + (0 * scarfy.height - 0 * 2)
                             };
                             DrawTextureRec(scarfy, frameRec, positionn, WHITE); //หมากดำ
@@ -802,26 +808,26 @@ void setupboard(Texture2D scarfy, Texture2D board_pic) {
 
                 if (SET_duke == 1 || SET_duke == 4) {
                     Vector2 posi = {
-                        85 + (j * scarfy.width / 76 + 5 * j),
+                        90 + (j * scarfy.width / 76 + 5 * j),
                         68.0f + (i * scarfy.height - i * 2)
                     }; //จัดใหม่
                     frameRec.x = (2 * Board[i][j]) * (float) scarfy.width / 76;
                     DrawTextureRec(scarfy, frameRec, posi, WHITE);
                     if (((abs(troop[21].x - j) + abs(troop[21].y - i)) == 1) && (Board[i][j] == 0)) {
-                        DrawRectangle(85 + (j * scarfy.width / 76 + 5 * j), 68.0f + (i * scarfy.height - i * 2), 10, 10, BLUE);
+                        DrawRectangle(90 + (j * scarfy.width / 76 + 5 * j), 68.0f + (i * scarfy.height - i * 2), 10, 10, BLUE);
                     }
                 } else if (SET_duke == 2 || SET_duke == 3) {
                     Vector2 posi = {
-                        85 + (j * scarfy.width / 76 + 5 * j),
+                        90 + (j * scarfy.width / 76 + 5 * j),
                         68.0f + (i * scarfy.height - i * 2)
                     }; //จัดใหม่
                     frameRec.x = (2 * Board[i][j]) * (float) scarfy.width / 76;
                     DrawTextureRec(scarfy, frameRec, posi, WHITE);
                     if (((abs(troop[1].x - j) + abs(troop[1].y - i)) == 1) && (Board[i][j] == 0)) {
-                        DrawRectangle(85 + (j * scarfy.width / 76 + 5 * j), 68.0f + (i * scarfy.height - i * 2), 10, 10, BLUE);
+                        DrawRectangle(90 + (j * scarfy.width / 76 + 5 * j), 68.0f + (i * scarfy.height - i * 2), 10, 10, BLUE);
                     }
                 }
-                //else DrawRectangle(85+ (j*scarfy.width/76+5*j),68.0f +(i*scarfy.height-i*2), scarfy.width/76+6, scarfy.height-2, WHITE);
+                //else DrawRectangle(90+ (j*scarfy.width/76+5*j),68.0f +(i*scarfy.height-i*2), scarfy.width/76+6, scarfy.height-2, WHITE);
             }
         }
 
@@ -859,7 +865,7 @@ int checkCheckmate(int on_player) {
         for (int x = 0; x < 6; x++) {
             int tr = Board[y][x];
             if (tr >= startTroop && tr <= startTroop + 20 && tr != 0) {
-                if (CanMove(tr, dukeTroop.x, dukeTroop.y)) {
+                if (CanMove(tr, dukeTroop.x, dukeTroop.y) || Can_Strike(tr, dukeTroop.x, dukeTroop.y)) {
                     return 1;
                 }
             }
@@ -906,15 +912,15 @@ int Can_Strike(int num, int x, int y) {
         return 0;
     } else if (Board[y][x] == 0) {
         return 0;
-    } else if ((((num == 5) || (num == 6) || (num == 7) || (num == 25) || (num == 26) || (num == 27))&& troop[num].filp == 1)) {
+    } else if ((((num == 5) || (num == 6) || (num == 7) || (num == 25) || (num == 26) || (num == 27))&& troop[num].flip == 1)) {
         if ((troop[num].y - y == 2) && abs(troop[num].x - x) == 1) {
             return 1;
         }
-    } else if (((num == 9) || (num == 29)) && troop[num].filp == 1) {
+    } else if (((num == 9) || (num == 29)) && troop[num].flip == 1) {
         if (abs(troop[num].y - y == 2) + abs(troop[num].x - x) == 1) {
             return 1;
         }
-    } else if (((num == 8) || (num == 28)) && troop[num].filp == 1) {
+    } else if (((num == 8) || (num == 28)) && troop[num].flip == 1) {
         if (((troop[num].y - y == 2) && abs(troop[num].x - x) == 0) || ((troop[num].y - y == 1) && abs(troop[num].x - x) == 1)) {
             return 1;
         }
@@ -946,7 +952,7 @@ int CanMove(int num, int x, int y) {
 
     if (num == 1 || num == 21) //Duke    
     {
-        if (troop[num].filp == 0) {
+        if (troop[num].flip == 0) {
             distance = x - troop[num].x;
             if (distance == 0 || y != troop[num].y) {
                 return 0;
@@ -969,7 +975,7 @@ int CanMove(int num, int x, int y) {
                 }
             }
             return 1;
-        } else if (troop[num].filp == 1) {
+        } else if (troop[num].flip == 1) {
             distance = y - troop[num].y;
             if (distance == 0 || x != troop[num].x) {
                 return 0;
@@ -995,7 +1001,7 @@ int CanMove(int num, int x, int y) {
         }
     } else if ((num == 2) || (num == 3) || (num == 4) || (num == 22) || (num == 23) || (num == 24)) //2-4 22-24 footman
     {
-        if (troop[num].filp == 0) {
+        if (troop[num].flip == 0) {
             distance = abs(y - troop[num].y) + abs(x - troop[num].x);
             if (distance == 1) {
                 if ((Board[y][x] == 0) || (Is_enemy(num, Board[y][x]))) {
@@ -1006,7 +1012,7 @@ int CanMove(int num, int x, int y) {
             } else {
                 return 0;
             }
-        } else if (troop[num].filp == 1) {
+        } else if (troop[num].flip == 1) {
             if ((abs(y - troop[num].y) == 1) && (abs(x - troop[num].x) == 1)) {
                 if (((Board[troop[num].y][x] == 0) || (Board[y][troop[num].x] == 0))) {
                     return 1;
@@ -1017,7 +1023,7 @@ int CanMove(int num, int x, int y) {
         }
     } else if ((num == 5) || (num == 6) || (num == 7) || (num == 25) || (num == 26) || (num == 27)) //5-7, 25-27 = PikeMan 
     {
-        if (troop[num].filp == 0) {
+        if (troop[num].flip == 0) {
             if (abs(x - troop[num].x) > 2) return 0;
             if (((y - troop[num].y < 0) && (abs(x - troop[num].x) > 0) && ((troop[num].y - y) == abs(x - troop[num].x)))) {
                 if (abs(x - troop[num].x) == 2)
@@ -1029,7 +1035,7 @@ int CanMove(int num, int x, int y) {
                 }
                 return 1;
             }
-        } else if (troop[num].filp == 1) {
+        } else if (troop[num].flip == 1) {
             if ((abs(y - troop[num].y) == 1) && ((x - troop[num].x) == 0)) {
                 return 1;
             } else if ((((y - troop[num].y) == 2) && (x - troop[num].x) == 0) && (Board[y - 1][x] == 0)) {
@@ -1040,7 +1046,7 @@ int CanMove(int num, int x, int y) {
     /*
         else if ((num==8)||(num==28))//8,28 = Assassin
         {
-            if ((troop[num].filp == 0))
+            if ((troop[num].flip == 0))
             {
 
                 if ( (((disx)==0)&&(disy<=-2)) || ((abs(disx)>=2)&&((disy)>=2)&&(abs(disx)==abs(disy))))
@@ -1050,7 +1056,7 @@ int CanMove(int num, int x, int y) {
                     else if (((x-troop[num].x)<0)&&(Board[tny+1][tnx-1]==0)){return 1;  }
                 }
             }
-            else if ((troop[num].filp == 1))
+            else if ((troop[num].flip == 1))
             {
                 if ( (((disx)==0)&&(disy>=2)) || ((abs(disx)>=2)&&((disy)<=-2)&&(abs(disx)==abs(disy))))
                 {return 1; /*
@@ -1062,14 +1068,14 @@ int CanMove(int num, int x, int y) {
         } */
     else if ((num == 8) || (num == 28)) //  9,29 = Bowman
     {
-        if (troop[num].filp == 0) {
+        if (troop[num].flip == 0) {
             distance = abs(y - troop[num].y) + abs(x - troop[num].x);
             if ((distance == 1) && (disy != 1)) {
                 return 1;
             } else if ((distance == 2) && ((abs(disx) == 2) || (disy == 2))) {
                 return 1;
             }
-        } else if (troop[num].filp == 1) {
+        } else if (troop[num].flip == 1) {
             if (((y - troop[num].y) == 1) && (abs(x - troop[num].x) == 1)) {
                 if (((Board[troop[num].y][x] == 0) || (Board[y][troop[num].x] == 0))) {
                     return 1;
@@ -1081,21 +1087,21 @@ int CanMove(int num, int x, int y) {
     } else if ((num == 9) || (num == 29)) //  = champion
     {
         distance = abs(y - troop[num].y) + abs(x - troop[num].x);
-        if (troop[num].filp == 0) {
+        if (troop[num].flip == 0) {
 
             if ((distance == 1)) {
                 return 1;
             } else if ((distance == 2) && ((abs(disx) == 2) || abs(disy) == 2)) {
                 return 1;
             }
-        } else if (troop[num].filp == 1) {
+        } else if (troop[num].flip == 1) {
             if ((distance == 2) && ((abs(disx) == 2) || abs(disy) == 2)) {
                 return 1;
             }
         }
     } else if ((num == 10) || (num == 30)) // = Ranger
     {
-        if (troop[num].filp == 0) {
+        if (troop[num].flip == 0) {
             if (((distance == 3) && (disy < 0)) && ((disy == -2) || abs(disx) == 2)) {
                 return 1;
             }
@@ -1123,7 +1129,7 @@ int CanMove(int num, int x, int y) {
             }
             return 1;
         }
-    } else if (troop[num].filp == 1) {
+    } else if (troop[num].flip == 1) {
             if ((disy)*-1 == abs(disx)) {
                 ABSdis = abs(disy);
 
@@ -1163,9 +1169,9 @@ int CanMove(int num, int x, int y) {
     }
 
     /*Gragoon
-        if ((troop[num].filp == 0)&&(distance == 1)&&(disy==0))
+        if ((troop[num].flip == 0)&&(distance == 1)&&(disy==0))
         {return 1;}
-        else if ((troop[num].filp == 1))
+        else if ((troop[num].flip == 1))
         {if ((y-troop[num].y==-1)&&((x-troop[num].x)==0))
             {
                 return 1;
@@ -1192,7 +1198,7 @@ int CanMove(int num, int x, int y) {
     }*/
     else if ((num == 11) || (num == 31)) //12,32 = General
     {
-        if (troop[num].filp == 0) {
+        if (troop[num].flip == 0) {
             if ((distance == 1) && (disx == 0)) {
                 return 1;
             } else if (((distance == 2) && (disy == 0)) && (Board[abs(y - tny) / 2][tnx] == 0)) {
@@ -1200,7 +1206,7 @@ int CanMove(int num, int x, int y) {
             } else if ((abs(x - tnx) == 1) && ((y - tny) == -2)) {
                 return 1;
             }
-        } else if ((troop[num].filp == 1)) {
+        } else if ((troop[num].flip == 1)) {
             if ((abs(x - tnx) == 1) && ((y - tny) == -2)) {
                 return 1;
             } else if (((distance == 2) && (disy == 0)) && (Board[abs(y - tny) / 2][tnx] == 0)) {
@@ -1211,7 +1217,7 @@ int CanMove(int num, int x, int y) {
         }
     } else if ((num == 12) || (num == 32)) //13, 34 = knight
     {
-        if (troop[num].filp == 0) {
+        if (troop[num].flip == 0) {
             if (((distance == 2) && (disy == 2)) && (Board[y - 1][tnx] == 0)) {
                 return 1;
             } else if ((distance == 1) && (disy != -1)) {
@@ -1219,7 +1225,7 @@ int CanMove(int num, int x, int y) {
             } else if ((abs(x - tnx) == 1) && ((y - tny) == -2)) {
                 return 1;
             }
-        } else if (troop[num].filp == 1) {
+        } else if (troop[num].flip == 1) {
             if (((y - tny > 0) && (abs(x - tnx) > 0) && (abs(tny - y) == abs(x - tnx)))) {
                 return 1;
             }
@@ -1248,7 +1254,7 @@ int CanMove(int num, int x, int y) {
         }
     } else if ((num == 13) || (num == 33)) // = Marshall
     {
-        if (troop[num].filp == 0) {
+        if (troop[num].flip == 0) {
             if (disy == 0) {
                 distance = x - troop[num].x;
                 if (distance == 0 || y != troop[num].y) {
@@ -1274,7 +1280,7 @@ int CanMove(int num, int x, int y) {
             } else if ((disy == -2 && abs(disx) == 2) || (disy == 2 && disx == 0)) {
                 return 1;
             }
-        } else if (troop[num].filp == 1) {
+        } else if (troop[num].flip == 1) {
             if (((distance == 2) && (disy == 0)) && (Board[abs(y - tny) / 2][tnx] == 0)) {
                 return 1;
             } else if ((distance == 1) && (disy != 1)) {
@@ -1290,7 +1296,7 @@ int CanMove(int num, int x, int y) {
         }
     } else if ((num == 14) || (num == 34)) // = Seer
     {
-        if (troop[num].filp == 0) {
+        if (troop[num].flip == 0) {
             if ((abs(y - troop[num].y) == 1) && (abs(x - troop[num].x) == 1)) {
                 if (Board[y - troop[num].y][x] == 0 || Board[y][x - troop[num].x] == 0 || Is_enemy(Board[y][x], num)) {
                     return 1;
@@ -1299,7 +1305,7 @@ int CanMove(int num, int x, int y) {
             if (((abs(y - troop[num].y) == 2) && (abs(x - troop[num].x) == 0)) || ((abs(x - troop[num].x) == 2) && abs(y - troop[num].y) == 0)) {
                 return 1;
             }
-        } else if (troop[num].filp == 1) {
+        } else if (troop[num].flip == 1) {
             if (abs(disx) + abs(disy) == 1) {
                 return 1;
             } else if (((abs(tny - y) + abs(tny - y)) == 4) && ((abs(tny - y) == 2) && (abs(tnx - x) == 2))) {
@@ -1308,7 +1314,7 @@ int CanMove(int num, int x, int y) {
         }
     } else if ((num == 15) || (num == 35)) //  Priest
     {
-        if (troop[num].filp == 0) {
+        if (troop[num].flip == 0) {
             if (abs(disy) == abs(disx)) {
                 ABSdis = abs(disy);
 
@@ -1336,7 +1342,7 @@ int CanMove(int num, int x, int y) {
                 }
                 return 1;
             }
-        } else if (troop[num].filp == 1) {
+        } else if (troop[num].flip == 1) {
             if ((abs(y - troop[num].y) == 1) && (abs(x - troop[num].x) == 1)) {
                 if (((Board[troop[num].y][x] == 0) || (Board[y][troop[num].x] == 0))) {
                     return 1;
@@ -1349,18 +1355,18 @@ int CanMove(int num, int x, int y) {
         }
     } else if ((num == 16) || (num == 36)) //11,31 = Jester
     {
-        if (troop[num].filp == 0) {
+        if (troop[num].flip == 0) {
             if (((y - tny) == -1) && (abs(disx) == 1)) return 1;
             else if ((((y - troop[num].y) == 2) && (x - troop[num].x) == 0) && (Board[y - 1][x] == 0)) return 1;
             else if ((distance == 3) && ((disy) == 2 || abs(disx) == 2) && (Board[y][abs(x - tnx) / 2] == 0) && (y > 1)) return 1;
-        } else if (troop[num].filp == 1) {
+        } else if (troop[num].flip == 1) {
             if ((((y - tny) == -1) && (abs(disx) == 1)) || (((y - tny) == 1) && (abs(disx) == 0))) return 1;
             else if (abs(x - troop[num].x) > 2) return 0;
             else if (((y - troop[num].y > 0) && (abs(x - troop[num].x) > 0) && ((y - troop[num].y) == abs(x - troop[num].x)))) return 1;
         }
     } else if ((num == 17) || (num == 37)) //18, 38 wizard
     {
-        if ((troop[num].filp == 0)) {
+        if ((troop[num].flip == 0)) {
             if ((abs(y - troop[num].y) == 1) && (abs(x - troop[num].x) == 1)) {
                 if (((Board[troop[num].y][x] == 0) || (Board[y][troop[num].x] == 0))) {
                     return 1;
@@ -1370,7 +1376,7 @@ int CanMove(int num, int x, int y) {
             } else if (distance == 1) {
                 return 1;
             }
-        } else if ((troop[num].filp == 1)) {
+        } else if ((troop[num].flip == 1)) {
             if (((abs(tny - y) + abs(tnx - x)) == 4) && ((abs(tny - y) == 2) && (abs(tnx - x) == 2))) {
                 return 1;
             } else if (((abs(y - troop[num].y) == 2) && (abs(x - troop[num].x) == 0)) || ((abs(x - troop[num].x) == 2) && abs(y - troop[num].y) == 0)) {
