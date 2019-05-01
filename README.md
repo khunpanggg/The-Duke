@@ -17,6 +17,6 @@ __The-Duke__ เป็นเกมแนว Abstract strategy game โดยใ�
 | __61070004__ - Krittima Chantachalee                | __61070016__ - Kittiwat Boonpean                 | __61070059__ - Nichapat Kachacheewa                         | __61070200__ - Woramat Ngamkham                     |
 
 # Assistant Teacher
-|ผศ. ดร. กิติ์สุชาต พสุภา|ผศ. ดร. ปานวิทย์ ธุวะนุติ|
+| <img src="pic/teacher/aj.Kitsuchart.jpg" width="100px" height="100px"> | <img src="pic/teacher/aj.Panwit.jpg" width="100px" height="100px"> |
 |:-:|:-:|
-|![](pic/teacher/aj.Kitsuchart.jpg)|![](pic/teacher/aj.Panwit.jpg)|
+|ผศ. ดร. กิติ์สุชาต พสุภา|ผศ. ดร. ปานวิทย์ ธุวะนุติ|
