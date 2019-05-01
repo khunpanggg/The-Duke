@@ -35,6 +35,7 @@ void CanMove_map(int x, int y);//ฟังก์ชั่นเช็คว่�
 void rotateBoard(); //หมุนกระดาน
 
 
+
 struct Troop {
 
     int x;
@@ -50,8 +51,10 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic); // Draw game board
 Vector2 mousePoint;
 Vector2 position = { 90.0f, 70.0f };
 int page = 0; // 0 is menu, 1 is game board, 2 is how to
+int page_howto = 0;
 int troop_tie = 1;
 int setup_board = 0, SET_duke = 0, player = 0, selecty = 99, selectx = 99;
+Font fontTtf;
 int main()
 {
     // Initialization
@@ -59,13 +62,103 @@ int main()
 
     double playingTime = 0;
     char testString[100];
-
+    page_howto = 0;
 
     InitWindow(screenWidth, screenHeight, "The Duke");
     Image background = LoadImage("resources/background.png");
     Image dukelogo = LoadImage("resources/dukelogo.png");
-    Texture2D logo = LoadTextureFromImage(dukelogo);
     Texture2D texture = LoadTextureFromImage(background);
+    Texture2D logo = LoadTextureFromImage(dukelogo);
+    
+    Image howto_1 = LoadImage("resources/howtoplay/1.png");
+    ImageResize(&howto_1, screenWidth, screenHeight);
+    Texture2D howto1 = LoadTextureFromImage(howto_1);
+    
+    Image howto_2 = LoadImage("resources/howtoplay/2.png");
+    ImageResize(&howto_2, screenWidth, screenHeight);
+    Texture2D howto2 = LoadTextureFromImage(howto_2);
+    
+    Image howto_3 = LoadImage("resources/howtoplay/3.png");
+    ImageResize(&howto_3, screenWidth, screenHeight);
+    Texture2D howto3 = LoadTextureFromImage(howto_3);
+    
+    Image howto_4 = LoadImage("resources/howtoplay/4.png");
+    ImageResize(&howto_4, screenWidth, screenHeight);
+    Texture2D howto4 = LoadTextureFromImage(howto_4);
+
+    Image howto_5 = LoadImage("resources/howtoplay/5.png");
+    ImageResize(&howto_5, screenWidth, screenHeight);
+    Texture2D howto5 = LoadTextureFromImage(howto_5);
+
+    Image howto_6 = LoadImage("resources/howtoplay/6.png");
+    ImageResize(&howto_6, screenWidth, screenHeight);
+    Texture2D howto6 = LoadTextureFromImage(howto_6);
+
+    Image howto_7 = LoadImage("resources/howtoplay/7.png");
+    ImageResize(&howto_7, screenWidth, screenHeight);
+    Texture2D howto7 = LoadTextureFromImage(howto_7);
+
+    Image howto_8 = LoadImage("resources/howtoplay/8.png");
+    ImageResize(&howto_8, screenWidth, screenHeight);
+    Texture2D howto8 = LoadTextureFromImage(howto_8);
+
+    Image howto_9 = LoadImage("resources/howtoplay/9.png");
+    ImageResize(&howto_9, screenWidth, screenHeight);
+    Texture2D howto9 = LoadTextureFromImage(howto_9);
+
+    Image howto_10 = LoadImage("resources/howtoplay/10.png");
+    ImageResize(&howto_10, screenWidth, screenHeight);
+    Texture2D howto10 = LoadTextureFromImage(howto_10);
+
+    Image howto_11 = LoadImage("resources/howtoplay/11.png");
+    ImageResize(&howto_11, screenWidth, screenHeight);
+    Texture2D howto11 = LoadTextureFromImage(howto_11);
+
+    Image howto_12 = LoadImage("resources/howtoplay/12.png");
+    ImageResize(&howto_12, screenWidth, screenHeight);
+    Texture2D howto12 = LoadTextureFromImage(howto_12);
+
+    Image howto_13 = LoadImage("resources/howtoplay/13.png");
+    ImageResize(&howto_13, screenWidth, screenHeight);
+    Texture2D howto13 = LoadTextureFromImage(howto_13);
+
+    Image howto_14 = LoadImage("resources/howtoplay/14.png");
+    ImageResize(&howto_14, screenWidth, screenHeight);
+    Texture2D howto14 = LoadTextureFromImage(howto_14);
+
+    Image howto_15 = LoadImage("resources/howtoplay/15.png");
+    ImageResize(&howto_15, screenWidth, screenHeight);
+    Texture2D howto15 = LoadTextureFromImage(howto_15);
+
+    Image howto_16 = LoadImage("resources/howtoplay/16.png");
+    ImageResize(&howto_16, screenWidth, screenHeight);
+    Texture2D howto16 = LoadTextureFromImage(howto_16);
+
+    Image howto_17 = LoadImage("resources/howtoplay/17.png");
+    ImageResize(&howto_17, screenWidth, screenHeight);
+    Texture2D howto17 = LoadTextureFromImage(howto_17);
+
+    Image howto_18 = LoadImage("resources/howtoplay/18.png");
+    ImageResize(&howto_18, screenWidth, screenHeight);
+    Texture2D howto18 = LoadTextureFromImage(howto_18);
+
+    Image howto_19 = LoadImage("resources/howtoplay/19.png");
+    ImageResize(&howto_19, screenWidth, screenHeight);
+    Texture2D howto19 = LoadTextureFromImage(howto_19);
+
+    Image howto_20 = LoadImage("resources/howtoplay/20.png");
+    ImageResize(&howto_20, screenWidth, screenHeight);
+    Texture2D howto20 = LoadTextureFromImage(howto_20);
+
+    Image howto_21 = LoadImage("resources/howtoplay/21.png");
+    ImageResize(&howto_21, screenWidth, screenHeight);
+    Texture2D howto21 = LoadTextureFromImage(howto_21);
+
+    Image howto_22 = LoadImage("resources/howtoplay/22.png");
+    ImageResize(&howto_22, screenWidth, screenHeight);
+    Texture2D howto22 = LoadTextureFromImage(howto_22);
+
+    fontTtf = LoadFont("resources/fonts/piecesofeight.ttf");
 
     bool selected[37] = { false };
     SetTargetFPS(60);
@@ -78,7 +171,7 @@ int main()
     ImageResize(&imag, 7520, 95*0.9);
     Texture2D scarfy = LoadTextureFromImage(imag);
 
-    
+    //ToggleFullscreen();
 
     //--------------------------------------------------------------------------------------
 
@@ -105,12 +198,59 @@ int main()
             }
         }
         else if (page == 2) {
-            drawHowTo();
+            if (page_howto == 0) {
+                drawHowTo(howto1);
+            } else if (page_howto == 1) {
+                drawHowTo(howto2);
+            } else if (page_howto == 2) {
+                drawHowTo(howto3);
+            } else if (page_howto == 3) {
+                drawHowTo(howto4);
+            } else if (page_howto == 4) {
+                drawHowTo(howto5);
+            } else if (page_howto == 5) {
+                drawHowTo(howto6);
+            } else if (page_howto == 6) {
+                drawHowTo(howto7);
+            } else if (page_howto == 7){
+                drawHowTo(howto8);
+            } else if (page_howto == 8){
+                drawHowTo(howto9);
+            } else if (page_howto == 9){
+                drawHowTo(howto10);
+            } else if (page_howto == 10){
+                drawHowTo(howto11);
+            } else if (page_howto == 11){
+                drawHowTo(howto12);
+            } else if (page_howto == 12){
+                drawHowTo(howto13);
+            } else if (page_howto == 13){
+                drawHowTo(howto14);
+            } else if (page_howto == 15){
+                drawHowTo(howto16);
+            } else if (page_howto == 17){
+                drawHowTo(howto18);
+            } else if (page_howto == 19){
+                drawHowTo(howto20);
+            } else if (page_howto == 20){
+                drawHowTo(howto21);
+            } else if (page_howto == 21){
+                drawHowTo(howto22);
+            } else {
+                page = 0;
+                page_howto = 0;
+            }
         }
+        else if (page == 3){
+            drawCredits();
+        }
+        else if (page == 4) { //Exit
+            CloseWindow();
+        }
+
         
         //----------------------------------------------------------------------------------
     }
-
     // De-Initialization
     //--------------------------------------------------------------------------------------   
     CloseWindow();        // Close window and OpenGL context
@@ -122,35 +262,39 @@ void drawMenu(Texture2D texture, Texture2D logo) {
     BeginDrawing();
     
         ClearBackground(LIGHTGRAY);
-        DrawText("The Duke", screenWidth / 2 - (15 * strlen("The Duke")), screenHeight / 4, 50, RAYWHITE);
-        DrawTexture(logo , 0, 0, RED);
-        DrawTexture(texture , 0, 0, RED);
+        //DrawText("The Duke", screenWidth / 2 - (15 * strlen("The Duke")), screenHeight / 4, 50, RAYWHITE);
+        DrawTexture(texture , 0, 0, WHITE);
+        DrawTexture(logo , screenWidth/3 -140, screenHeight/4 - 80, WHITE);
 
         mousePoint = GetMousePosition();
-        Rectangle menuRecs[3];
-        for (int i = 0; i < 3; i++)
+        Rectangle menuRecs[4];
+        for (int i = 0; i < 4; i++)
         {
             menuRecs[i].x = screenWidth / 3;
-            menuRecs[i].y = screenHeight *(2+(i*0.5))/ 4;
-            menuRecs[i].width =300;
+            menuRecs[i].y = screenHeight *(2+(i*0.4))/ 4;
+            menuRecs[i].width = 300;
             menuRecs[i].height = 50;
         }
 
-        for (int i = 0; i < 3; i++)    // Iterate along all the rectangles
+        for (int i = 0; i < 4; i++)    // Iterate along all the rectangles
         {
             if (CheckCollisionPointRec(mousePoint, menuRecs[i]))
             {
-                DrawRectangle(screenWidth / 3, screenHeight *(2+(i*0.5))/ 4, 300, 50, RED);
+                DrawRectangle(screenWidth / 3, screenHeight *(2+(i*0.4))/ 4, 300, 50, RED);
 
-                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) page = i+1;
+                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) page = i + 1;
             }
-            else DrawRectangle(screenWidth / 3, screenHeight *(2+(i*0.5))/ 4, 300, 50, GRAY);
+            else DrawRectangle(screenWidth / 3, screenHeight *(2+(i*0.4))/ 4, 300, 50, DARKBROWN);
         }
-        
-        DrawText("Start", screenWidth / 3 + 125, screenHeight *2/ 4+ 12, 25, RAYWHITE);
-        DrawText("How to play", screenWidth / 3 + 90, screenHeight *2.5/ 4+ 12, 25, RAYWHITE);
-        DrawText("Exit", screenWidth / 3 + 125, screenHeight *3/ 4+ 12, 25, RAYWHITE);
-
+        Vector2 vec1 = {screenWidth / 3 + 110, screenHeight *2/ 4+ 2};
+        Vector2 vec2 = {screenWidth / 3 + 50, screenHeight *2.4/ 4+ 2};
+        Vector2 vec3 = {screenWidth / 3 + 100, screenHeight *2.8/ 4 + 2};
+        Vector2 vec4 = {screenWidth / 3 + 120, screenHeight *3.2/ 4 + 2};
+        //DrawTextEx(Font font, const char* text, Vector2 position, int fontsize, int padding, Color tint);
+        DrawTextEx(fontTtf, "Start", vec1, 55, 0, GOLD);
+        DrawTextEx(fontTtf, "How to play", vec2, 55, 0, GOLD);
+        DrawTextEx(fontTtf, "Credits", vec3, 55, 0, GOLD);
+        DrawTextEx(fontTtf, "Exit", vec4, 55, 0, GOLD);
     EndDrawing();
 }
 
@@ -207,7 +351,8 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
                         DrawRectangle(85+ (j*scarfy.width/76+5*j),68.0f +(i*scarfy.height-i*2), scarfy.width/76/8+6, scarfy.height/8-2, BLUE);
                         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))//ถ้าเมาส์คลิกซ้าย
                         {
-                            selectx = j;selecty = i;
+                            selectx = j;
+                            selecty = i;
                         }
                     }
                     else if (selectx+selecty != 198&&CanMove(Board[selecty][selectx],j,i)&&IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
@@ -235,69 +380,103 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
         DrawText(FormatText("player%i selectx%i selecty%i",player ,selectx,selecty), 10, 40, 20, LIGHTGRAY);
     EndDrawing();
 }
+void drawCredits(Texture2D texture){
+    BeginDrawing();
+        DrawTexture(texture , 0, 0, WHITE);
+        Vector2 vec0 = {360, 50};
+        Vector2 vec1 = {180, 120};
+        Vector2 vec2 = {180, 170};
+        Vector2 vec3 = {180, 220};
+        Vector2 vec4 = {180, 270};
+        Vector2 vec5 = {330, 320};
+        Vector2 vec6 = {150, 390};
+        Vector2 vec7 = {150, 440};
+        Vector2 vec8 = {150, 490};
+        Vector2 vec9 = {150, 540};
+        DrawTextEx(fontTtf, "Member", vec0, 55, 0, GOLD);
+        DrawTextEx(fontTtf, "61070004  Krittima Chantachalee", vec1, 40, 0, LIGHTGRAY);
+        DrawTextEx(fontTtf, "61070016  Kittiwat Boonpean", vec2, 40, 0, LIGHTGRAY);
+        DrawTextEx(fontTtf, "61070059  Nichapat Kachacheewa", vec3, 40, 0, LIGHTGRAY);
+        DrawTextEx(fontTtf, "61070200  Woramat Ngamkham", vec4, 40, 0, LIGHTGRAY);
+        DrawTextEx(fontTtf, "Credit Game", vec5, 55, 0, GOLD);
+        DrawTextEx(fontTtf, "Designers - Jeremy Holcomb Stephen McLaughlin", vec6, 40, 0, LIGHTGRAY);
+        DrawTextEx(fontTtf, "Artist - Matt Heerdt", vec7, 40, 0, LIGHTGRAY);
+        DrawTextEx(fontTtf, "Publisher - Catalyst Game Labs", vec8, 40, 0, LIGHTGRAY);
+        DrawTextEx(fontTtf, "Mechanisms - Grid Movement Tile Placement", vec9, 40, 0, LIGHTGRAY);
+        
+        Rectangle menuBack[0];
+        mousePoint = GetMousePosition();
+        Vector2 vec = {670, 580};
+        menuBack[0].x = 600;
+        menuBack[0].y = 580;
+        menuBack[0].width = 200;
+        menuBack[0].height = 50;
+        if (CheckCollisionPointRec(mousePoint, menuBack[0])){
+                DrawRectangle(600, 580, 200, 45, RED);
+                DrawTextEx(fontTtf, "Back", vec, 45, 0, GOLD);
+
+                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
+                    page = 0;
+                }
+            }
+            else DrawRectangle(600, 580, 200, 45, DARKBROWN);
+                DrawTextEx(fontTtf, "Back", vec, 45, 0, GOLD);
 
 
-void drawHowTo() {
+
+    EndDrawing();
+}
+void drawHowTo(Texture2D howto1) {
     BeginDrawing();
         ClearBackground(LIGHTGRAY);
-        DrawRectangle(screenWidth/2 - 250, screenHeight/2 - 250, 500, 500, BLACK);
-        DrawRectangle(screenWidth/2 - 242.5, screenHeight/2 - 242.5, 485, 485, RAYWHITE);
-
-        DrawText("How To Play",screenWidth/2 - 85, screenHeight/2 - 220, 30,BLACK);
+        DrawTexture(howto1, 0, 0, WHITE);
+        //DrawRectangle(screenWidth/2 - 250, screenHeight/2 - 250, 500, 500, BLACK);
+        //DrawRectangle(screenWidth/2 - 242.5, screenHeight/2 - 242.5, 485, 485, RAYWHITE);
         Rectangle menuNext[3];
         mousePoint = GetMousePosition();
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 2; i++)
         {
             menuNext[i].x = 170 +(i*200);
-            menuNext[i].y = 490;
-            menuNext[i].width = 60;
-            menuNext[i].height = 60;
+            menuNext[i].y = 570;
+            menuNext[i].width = 150;
+            menuNext[i].height = 40;
         }
 
-        for (int i = 0; i < 3; i++)    // Iterate along all the rectangles
+        for (int i = 0; i < 2; i++)    // Iterate along all the rectangles
         {
-           if (CheckCollisionPointRec(mousePoint, menuNext[i]))
-            {
-                if(i==0){
-                    DrawRectangle(menuNext[i].x, menuNext[i].y, 60, 60, RED);
-                    DrawText("<", menuNext[i].x+25, menuNext[i].y-4, 75,BLACK);
+            Vector2 vec = {menuNext[i].x+60, menuNext[i].y+5};
 
-                    if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)){
-                        DrawText("Pang NIchapat", menuNext[i].x+25, menuNext[i].y-4, 25,BLACK);
+           if (CheckCollisionPointRec(mousePoint, menuNext[i])) {
+                if(i==0 && page_howto != 0){
+                    DrawRectangle(menuNext[i].x, menuNext[i].y, 190, 55, RED);
+                    DrawTextEx(fontTtf, "Back", vec, 55, 0, GOLD);
+
+                    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
+                        page_howto = page_howto > 0 ? page_howto - 1 : 0;
                     }
                 }
                 if(i==1){
-                    DrawRectangle(menuNext[i].x-5, menuNext[i].y, 100, 60, RED);
-                    DrawText("Home", menuNext[i].x+12, menuNext[i].y+14, 30,BLACK);
+                    DrawRectangle(menuNext[i].x, menuNext[i].y, 190, 55, RED);
+                    DrawTextEx(fontTtf, "Next", vec, 55, 0, GOLD);
 
-                    if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)){
-                        page = 0;
+                    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
+                        page_howto = page_howto < 21 ? page_howto + 1 : 21;
                     }
-                }
-                if(i==2){
-                    DrawRectangle(menuNext[i].x, menuNext[i].y, 60, 60, RED);
-                    DrawText(">", menuNext[i].x+25, menuNext[i].y-4, 75,BLACK);
 
-                    if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)){
-                        page = 0;
-                    }
                 }
             }
-            else if (i==0){
-                DrawRectangle(menuNext[i].x, menuNext[i].y, 60, 60, GRAY);
-                DrawText("<", menuNext[i].x+25, menuNext[i].y-4, 75,BLACK);
+            else if (i==0 && page_howto != 0){
+                DrawRectangle(menuNext[i].x, menuNext[i].y, 190, 55, DARKBROWN);
+                DrawTextEx(fontTtf, "Back", vec, 55, 0,GOLD);
             }
             else if (i==1){
-                DrawRectangle(menuNext[i].x-5, menuNext[i].y, 100, 60, GRAY);
-                DrawText("Home", menuNext[i].x+12, menuNext[i].y+14, 30,BLACK);
-            }
-            else if (i==2){
-                DrawRectangle(menuNext[i].x, menuNext[i].y, 60, 60, GRAY);
-                DrawText(">", menuNext[i].x+25, menuNext[i].y-4, 75,BLACK);
+                DrawRectangle(menuNext[i].x, menuNext[i].y, 190, 55, DARKBROWN);
+                DrawTextEx(fontTtf, "Next", vec, 55, 0,GOLD);
             }
         }
     EndDrawing();
 }
+
 void leftout(int i){
     if (troop[i].left != 0)
     {
