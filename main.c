@@ -170,11 +170,11 @@ int main() {
     SetTargetFPS(60);
 
     Image image = LoadImage("resources/board.png");
-    ImageResize( & image, screenWidth, screenHeight);
+    ImageResize(&image, screenWidth, screenHeight);
     board_pic = LoadTextureFromImage(image);
 
     troop_image = LoadImage("resources/Troop.png"); // Texture loading
-    ImageResize( & troop_image, 7520, 95 * 0.9);
+    ImageResize(&troop_image, 7520, 95 * 0.9);
     scarfy = LoadTextureFromImage(troop_image);
 
     //--------------------------------------------------------------------------------------
@@ -272,6 +272,7 @@ int main() {
 }
 
 void drawMenu(Texture2D texture, Texture2D logo) {
+    setup_board = 0;
     BeginDrawing();
         ClearBackground(LIGHTGRAY);
         //DrawText("The Duke", screenWidth / 2 - (15 * strlen("The Duke")), screenHeight / 4, 50, RAYWHITE);
@@ -311,7 +312,6 @@ void drawMenu(Texture2D texture, Texture2D logo) {
 }
 
 void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
-
     Vector2 mousePoint;
     Rectangle hitbox_onboard[37];
     Rectangle summonbox = {
@@ -400,7 +400,7 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
                 {
                     DrawRectangle(screenWidth / 4 + 80, screenHeight * 3 / 4 + 90, 190, 50, BROWN);
                     DrawText("cancel", screenWidth / 4 + 100, screenHeight * 3 / 4 + 100, 40, RAYWHITE);
-                     DrawText(FormatText("Player %d %d", selecty_com, selectx_com), 15, 15, 30, RED);
+                    DrawText(FormatText("Player %d %d", selecty_com, selectx_com), 15, 15, 30, RED);
                 }
             }
 
@@ -504,18 +504,19 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
         }
     }
     //DrawTextureEx(scarfy, Vector2 position, float rotation, float scale, Color tint);
-    DrawText(FormatText("Player %i select_id = %d", player, Board[selecty][selectx]), 15, 50, 20, RED);
+    //DrawText(FormatText("Player %i select_id = %d", player, Board[selecty][selectx]), 15, 50, 20, RED);
+    /*
     if (newtroop) {
         DrawText(FormatText("New troop id %i", newtroop), 10, screenHeight - 40, 20, LIGHTGRAY);
-    }
+    }*/
 
     if (checkLose(player)) {
         DrawText(FormatText("Player %d WIN!", !player), 15, 15, 30, RED);
         DrawRectangle(0, 0, screenWidth, screenHeight, Fade(BLACK, 0.4f));
         Vector2 vecResult0 = {80, 180};
         Vector2 vecResult1 = {170, 300};
-        DrawTextEx(fontTtf, "Player 1 Win!", vecResult0, 140, 0, GOLD);
-        DrawTextEx(fontTtf, "Player 2 Lose!", vecResult1, 100, 0, WHITE);
+        DrawTextEx(fontTtf, FormatText("Player %d Win!", !player + 1), vecResult0, 140, 0, GOLD);
+        DrawTextEx(fontTtf, FormatText("Player %d Lose!", player + 1), vecResult1, 100, 0, WHITE);
         Rectangle menuNext[3];
         mousePoint = GetMousePosition();
         for (int i = 0; i < 2; i++)
@@ -537,6 +538,11 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
 
                     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
                         page = 0;
+                        //setup_board = 0, SET_duke = 0, player = 0, selecty = 99, selectx = 99, newtroop = 0;
+                        troop_image = LoadImage("resources/Troop.png"); // Texture loading
+                        ImageResize(&troop_image, 7520, 95 * 0.9);
+                        scarfy = LoadTextureFromImage(troop_image);
+                     
                     }
                 }
                 if(i==1){
@@ -545,8 +551,12 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
 
                     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
                         page = 1;
-                        setup_board = 0, SET_duke = 0, player = 0, selecty = 99, selectx = 99, newtroop = 0;
-                        setupboard(scarfy, board_pic);
+                        setup_board = 0;
+                        //setup_board = 0, SET_duke = 0, player = 0, selecty = 99, selectx = 99, newtroop = 0;
+
+                        troop_image = LoadImage("resources/Troop.png"); // Texture loading
+                        ImageResize(&troop_image, 7520, 95 * 0.9);
+                        scarfy = LoadTextureFromImage(troop_image); 
                     }
                 }
             }
@@ -1008,7 +1018,7 @@ void rotateBoard() {
         }
     }
 
-    ImageFlipVertical( & troop_image);
+    ImageFlipVertical(&troop_image);
     scarfy = LoadTextureFromImage(troop_image);
 }
 
