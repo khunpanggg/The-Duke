@@ -57,6 +57,7 @@ int page_howto = 0;
 int troop_tie = 1;
 int setup_board = 0, SET_duke = 0, player = 0, selecty = 99, selectx = 99, newtroop = 0;
 int summonint = 0;
+int selectx_com = 99 , selecty_com = 99 ;//commead
 int main() {
     // Initialization
     //--------------------------------------------------------------------------------------
@@ -305,6 +306,7 @@ void drawMenu(Texture2D texture, Texture2D logo) {
 }
 
 void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
+
     Vector2 mousePoint;
     Rectangle hitbox_onboard[37];
     Rectangle summonbox = {
@@ -337,10 +339,17 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
     //if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) troop_tie += 1;
     //DrawTextureRec(scarfy, frameRec, position, WHITE);
     mousePoint = GetMousePosition();
-    if (CheckCollisionPointRec(mousePoint, summonbox) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && summonint == 0) {
+    if (CheckCollisionPointRec(mousePoint, summonbox) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && summonint == 0&&Can_summon(player, Board[selecty][selectx])) {
         newtroop = summon(player);
         summonint = 1;
-        //DrawRectangle(screenWidth / 4+40, screenHeight *3/ 4+ 90, 190, 50,RED);
+        //DrawRectangle(screenWidth / 4+40, screenHeight *3/ 4+ 90, 190, 50,RED);//ต้องเเก้การยิงของแชมเปี่ยน
+    }
+    else if (CheckCollisionPointRec(mousePoint, summonbox) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && summonint == 0&&Can_Command(Board[selecty][selectx])) {
+        selectx_com = selectx , selecty_com = selecty ;
+        summonint = 2;//command
+    }
+    else if (CheckCollisionPointRec(mousePoint, summonbox) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && summonint == 2){
+        summonint = 0;//re-set
     }
 
     if (checkLose(player)) {
@@ -381,6 +390,18 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
                 if (Can_Strike(Board[selecty][selectx], j, i) && summonint == 0) {
                     DrawRectangle(90 + (j * scarfy.width / 76 + 5 * j + scarfy.width / 76 / 2), 68.0f + (i * scarfy.height - i * 2 + scarfy.height / 2), 10, 10, PINK);
                     DrawText(FormatText("x%i y%i ", j, i), 90 + (j * scarfy.width / 76 + 5 * j + scarfy.width / 76 / 2), 68.0f + (i * scarfy.height - i * 2 + scarfy.height / 2), 25, LIGHTGRAY);
+                }
+                if (Can_Command(Board[selecty][selectx]))
+                {
+                    DrawRectangle(screenWidth / 4 + 80, screenHeight * 3 / 4 + 90, 190, 50, BROWN);
+                    DrawText("Command", screenWidth / 4 + 100, screenHeight * 3 / 4 + 100, 40, RAYWHITE);
+
+                }
+                if (summonint == 2)
+                {
+                    DrawRectangle(screenWidth / 4 + 80, screenHeight * 3 / 4 + 90, 190, 50, BROWN);
+                    DrawText("cancel", screenWidth / 4 + 100, screenHeight * 3 / 4 + 100, 40, RAYWHITE);
+                     DrawText(FormatText("Player %d %d", selecty_com, selectx_com), 15, 15, 30, RED);
                 }
             }
 
@@ -426,6 +447,26 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
                     }
                     rotateBoard(); 
                 }
+                else if (summonint == 2) {
+                    if ((selecty_com != selecty)&&(selectx_com != selectx)  && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)&&(selectx_com != 99))
+                    {
+                    Command(Board[selecty_com][selectx_com],selectx, selecty, j, i);
+                    summonint = 0;//re-set
+                    flip_troop(Board[selecty_com][selectx_com]);
+                    if (player == 1) {
+                        player = 0;
+                        selectx = 99;
+                        selecty = 99;
+                    } else {
+                        player = 1;
+                        selectx = 99;
+                        selecty = 99;
+                    }
+                    rotateBoard(); 
+                    }
+                   
+                }
+
                 else if (summonint == 1) // If player already click on summon
                 {
                     int pnum = player * 20 + 1;
@@ -547,7 +588,7 @@ void drawHowTo(Texture2D howto1) {
                     DrawTextEx(fontTtf, "Next", vec, 55, 0, GOLD);
 
                     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
-                        page_howto = page_howto < 21 ? page_howto + 1 : 21;
+                        page_howto = page_howto < 22 ? page_howto + 1 : 21;
                     }
 
                 }
@@ -887,24 +928,88 @@ int checkLose(int on_player) {
     return 1;
 }
 
-int Can_Command(int num, int x1, int y1, int x2, int y2) {
-    if (!Is_ally(num, Board[y1][x1])) {
-        return 0;
-    } else if (Board[y1][x1] == 0) {
-        return 0;
-    } else if (Is_ally(Board[y2][x2], Board[y1][x1])) {
-        return 0;
-    } else if ((num == 11) || (num == 31)) //12,32 = General
+int Command(int num,int x1, int y1, int x2, int y2){
+    int numx= troop[num].x , numy= troop[num].y;
+    if (((num == 11) || (num == 31))&& troop[num].flip == 1) //12,32 = General
     {
-        if (((troop[num].y - y1 == -1) && abs(troop[num].x - x1) <= 1) && abs(troop[num].x - x1) == 1) {
-            return 1;
-        }
-    } else if (((num == 13) || (num == 33)) && abs(troop[num].x - x1) == 1) // = Marshall
-    {
-        if ((troop[num].y - y1 == 1) && abs(troop[num].x - x1) <= 1) {
-            return 1;
+        if (Is_ally(Board[y1][x1],num)&& !Is_ally(Board[y1][x1],Board[x2][y2]))
+        {
+            if (((abs(numx-x1)<=1)&&((y1-numy)==1)) || ((y1-numy)==0)&&((abs(numx-x1)<=1))&&(abs(numx-x1)!=0))
+            {
+                Board[y2][x2] = Board[y1][x1];
+                Board[y1][x1] = 0;
+                return 1;
+            }
         }
     }
+    else if (((num == 13) || (num == 33))&& troop[num].flip == 1){
+        if (Is_ally(Board[y1][x1],num)&& !Is_ally(Board[y1][x1],Board[x2][y2]))
+        {
+            if (((abs(numx-x1)<=1)&&((y1-numy)==-1)) )
+            {
+                Board[x2][y2] = Board[x1][y1];
+                Board[x1][y1] = 0;
+                return 1;
+            }
+        }
+    }
+}
+
+int Can_Command(int num) {
+    int air=0, ally=0;
+    int x1 = troop[num].x,y1 = troop[num].y;
+     if (Board[y1][x1] == 0) {
+        return 0;
+    }  
+    if (((num == 11) || (num == 31))&& troop[num].flip == 1) //12,32 = General
+    {
+        
+            for (int i = -1; i < 2; i++)
+            { 
+                if (Board[y1+1][x1+i]==0)
+                {
+                    air = 1;
+                }
+                else if (Is_ally(Board[y1][x1], Board[y1+1][i]))
+                {
+                    ally = 1;
+                }
+            }
+            for (int i = -1; i < 2; i += 2)
+            { 
+                if (Board[y1][x1+i]==0)
+                {
+                    air = 1;
+                }
+                else if (Is_ally(Board[y1][x1], Board[y1][x1+i]))
+                {
+                    ally = 1;
+                }
+            }
+            if (air == ally && ally == 1)
+            {
+                return 1;
+            }
+        
+    } else if (((num == 13) || (num == 33))&& troop[num].flip == 1) // = Marshall
+    {
+          for (int i = -1; i < 2; i++)
+            { 
+                if (Board[y1-1][x1+i]==0)
+                {
+                    air = 1;
+                }
+                else if (Is_ally(Board[y1][x1], Board[y1-1][x1+i]))
+                {
+                    ally = 1;
+                }
+            }
+            if (air == ally && ally == 1)
+            {
+                return 1;
+            }
+    }
+    return 0;
 }
 
 int Can_Strike(int num, int x, int y) {
