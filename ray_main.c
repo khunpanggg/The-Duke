@@ -51,6 +51,7 @@ Vector2 position = {
 };
 Image troop_image;
 Texture2D scarfy;
+Texture2D board_pic;
 Font fontTtf;
 int page = 0; // 0 is menu, 1 is game board, 2 is how to
 int page_howto = 0;
@@ -169,7 +170,7 @@ int main() {
 
     Image image = LoadImage("resources/board.png");
     ImageResize( & image, screenWidth, screenHeight);
-    Texture2D board_pic = LoadTextureFromImage(image);
+    board_pic = LoadTextureFromImage(image);
 
     troop_image = LoadImage("resources/Troop.png"); // Texture loading
     ImageResize( & troop_image, 7520, 95 * 0.9);
@@ -256,6 +257,10 @@ int main() {
         else if (page == 4) { //Exit
             CloseWindow();
         }
+        //else if (checkLose == 0){
+        //    drawResult();
+        //}
+
         //----------------------------------------------------------------------------------
     }
     // De-Initialization
@@ -341,12 +346,6 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
         newtroop = summon(player);
         summonint = 1;
         //DrawRectangle(screenWidth / 4+40, screenHeight *3/ 4+ 90, 190, 50,RED);
-    }
-
-    if (checkLose(player)) {
-        DrawText(FormatText("Player %d WIN!", !player), 15, 15, 30, RED);
-    } else if (checkCheckmate(player)) {
-        DrawText(FormatText("Player %d Checkmate!", player), 15, 15, 30, RED);
     }
 
     for (int i = 0; i < 6; i++) {
@@ -468,8 +467,64 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
     if (newtroop) {
         DrawText(FormatText("New troop id %i", newtroop), 10, screenHeight - 40, 20, LIGHTGRAY);
     }
+
+    if (checkLose(player)) {
+        DrawText(FormatText("Player %d WIN!", !player), 15, 15, 30, RED);
+        DrawRectangle(0, 0, screenWidth, screenHeight, Fade(BLACK, 0.4f));
+        Vector2 vecResult0 = {80, 180};
+        Vector2 vecResult1 = {170, 300};
+        DrawTextEx(fontTtf, "Player 1 Win!", vecResult0, 140, 0, GOLD);
+        DrawTextEx(fontTtf, "Player 2 Lose!", vecResult1, 100, 0, WHITE);
+        Rectangle menuNext[3];
+        mousePoint = GetMousePosition();
+        for (int i = 0; i < 2; i++)
+        {
+            menuNext[i].x = 200 +(i*200);
+            menuNext[i].y = 550;
+            menuNext[i].width = 150;
+            menuNext[i].height = 40;
+        }
+
+        for (int i = 0; i < 2; i++)    // Iterate along all the rectangles
+        {
+            Vector2 vecL = {menuNext[i].x+10, menuNext[i].y+5};
+            Vector2 vecR = {menuNext[i].x+30, menuNext[i].y+5};
+            if (CheckCollisionPointRec(mousePoint, menuNext[i])) {
+                if(i==0){
+                    DrawRectangle(menuNext[i].x, menuNext[i].y, 190, 55, RED);
+                    DrawTextEx(fontTtf, "Main Menu", vecL, 50, 0, GOLD);
+
+                    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
+                        page = 0;
+                    }
+                }
+                if(i==1){
+                    DrawRectangle(menuNext[i].x, menuNext[i].y, 190, 55, RED);
+                    DrawTextEx(fontTtf, "Restart", vecR, 50, 0, GOLD);
+
+                    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
+                        page = 1;
+                        setup_board = 0, SET_duke = 0, player = 0, selecty = 99, selectx = 99, newtroop = 0;
+                        setupboard(scarfy, board_pic);
+                    }
+                }
+            }
+            else if (i==0){
+                DrawRectangle(menuNext[i].x, menuNext[i].y, 190, 55, DARKBROWN);
+                DrawTextEx(fontTtf, "Main Menu", vecL, 50, 0,GOLD);
+                }
+            else if (i==1){
+                DrawRectangle(menuNext[i].x, menuNext[i].y, 190, 55, DARKBROWN);
+                DrawTextEx(fontTtf, "Restart", vecR, 50, 0,GOLD);
+                
+            } 
+        }
+    } else if (checkCheckmate(player)) {
+        DrawText(FormatText("Player %d Checkmate!", player), 15, 15, 30, RED);
+    }
     EndDrawing();
 }
+
 void drawCredits(Texture2D texture){
     BeginDrawing();
         DrawTexture(texture , 0, 0, WHITE);
@@ -563,6 +618,63 @@ void drawHowTo(Texture2D howto1) {
         }
     EndDrawing();
 }
+
+/*
+void drawResult(Texture2D texture){
+    BeginDrawing();
+        //DrawTexture(texture , 0, 0, WHITE);
+        DrawRectangle(0, 0, screenWidth, screenHeight, Fade(BLACK, 0.4f));
+        Vector2 vecResult0 = {80, 180};
+        Vector2 vecResult1 = {170, 300};
+        DrawTextEx(fontTtf, "Player 1 Win!", vecResult0, 140, 0, GOLD);
+        DrawTextEx(fontTtf, "Player 2 Lose!", vecResult1, 100, 0, WHITE);
+        Rectangle menuNext[3];
+        mousePoint = GetMousePosition();
+        for (int i = 0; i < 2; i++)
+        {
+            menuNext[i].x = 200 +(i*200);
+            menuNext[i].y = 550;
+            menuNext[i].width = 150;
+            menuNext[i].height = 40;
+        }
+
+        for (int i = 0; i < 2; i++)    // Iterate along all the rectangles
+        {
+            Vector2 vecL = {menuNext[i].x+10, menuNext[i].y+5};
+            Vector2 vecR = {menuNext[i].x+30, menuNext[i].y+5};
+            if (CheckCollisionPointRec(mousePoint, menuNext[i])) {
+                if(i==0){
+                    DrawRectangle(menuNext[i].x, menuNext[i].y, 190, 55, RED);
+                    DrawTextEx(fontTtf, "Main Menu", vecL, 50, 0, GOLD);
+
+                    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
+                        page = 0;
+                    }
+                }
+                if(i==1){
+                    DrawRectangle(menuNext[i].x, menuNext[i].y, 190, 55, RED);
+                    DrawTextEx(fontTtf, "Restart", vecR, 50, 0, GOLD);
+
+                    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
+                        page = 1;
+                    }
+                }
+            }
+            else if (i==0){
+                DrawRectangle(menuNext[i].x, menuNext[i].y, 190, 55, DARKBROWN);
+                DrawTextEx(fontTtf, "Main Menu", vecL, 50, 0,GOLD);
+                }
+            else if (i==1){
+                DrawRectangle(menuNext[i].x, menuNext[i].y, 190, 55, DARKBROWN);
+                DrawTextEx(fontTtf, "Restart", vecR, 50, 0,GOLD);
+                
+            }
+        
+
+            
+        }
+        EndDrawing();
+} */
 
 void leftout(int i) {
     if (troop[i].left != 0) {
@@ -684,10 +796,11 @@ void setupboard(Texture2D scarfy, Texture2D board_pic) {
         if (!((i >17)&&(i<21)) )
         {
             troop[i].left = 1;
-        troop[i].flip = 0;
-        }
-        
+            troop[i].flip = 0;
+        }    
     }
+
+    SET_duke = 0;
 
     Board[0][1] = 0; //Bug
 
