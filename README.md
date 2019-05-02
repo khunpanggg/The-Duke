@@ -15,7 +15,7 @@ __The-Duke__ เป็นเกมแนว Abstract strategy game โดยใ�
    * วางหมาก  สุ่มหมากจากในเกม 1 ชิ้นแล้วก็วางไว้ด้านบนหรือด้านข้างของ Duke
    * ใช้ความสามารถของหมาก (กฎพิเศษในหมากบางตัว)
 # Youtube
-	* chlick: https://youtu.be/HWMyyxQcrRM
+> [The Duke](https://youtu.be/HWMyyxQcrRM)
 # Assistant Teacher
 | <img src="pic/teacher/aj.Kitsuchart.jpg" width="100px" height="100px"> | <img src="pic/teacher/aj.Panwit.jpg" width="100px" height="100px"> |
 |:-:|:-:|
