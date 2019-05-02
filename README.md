@@ -15,12 +15,12 @@ __The-Duke__ เป็นเกมแนว Abstract strategy game โดยใ�
    * วางหมาก  สุ่มหมากจากในเกม 1 ชิ้นแล้วก็วางไว้ด้านบนหรือด้านข้างของ Duke
    * ใช้ความสามารถของหมาก (กฎพิเศษในหมากบางตัว)
 
+# Assistant Teacher
+| <img src="pic/teacher/aj.Kitsuchart.jpg" width="100px" height="100px"> | <img src="pic/teacher/aj.Panwit.jpg" width="100px" height="100px"> |
+|:-:|:-:|
+|Assoc.Prof. Dr. Kitsuchart Pasupa|Assoc.Prof. Dr. Panwit Tuwanut|
+
 # Team Member
 | <img src="pic/member/syn.JPG" width="100px" height="100px"> | <img src="pic/member/duke.jpg" width="100px" height="100px"> | <img src="pic/member/pang.jpg" width="100px" height="100px"> | <img src="pic/member/icys.jpg" width="100px" height="100px"> |
 |-----------------------------------------------------|------------------------------------------------------|-----------------------------------------------------|------------------------------------------------------|
 | __61070004__ - Krittima Chantachalee                | __61070016__ - Kittiwat Boonpean                 | __61070059__ - Nichapat Kachacheewa                         | __61070200__ - Woramat Ngamkham                     |
-
-# Assistant Teacher
-| <img src="pic/teacher/aj.Kitsuchart.jpg" width="100px" height="100px"> | <img src="pic/teacher/aj.Panwit.jpg" width="100px" height="100px"> |
-|:-:|:-:|
-|ผศ. ดร. กิติ์สุชาต พสุภา|ผศ. ดร. ปานวิทย์ ธุวะนุติ|
