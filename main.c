@@ -407,7 +407,7 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
                 {
                     DrawRectangle(screenWidth / 4 + 80, screenHeight * 3 / 4 + 90, 190, 50, BROWN);
                     DrawText("cancel", screenWidth / 4 + 100, screenHeight * 3 / 4 + 100, 40, RAYWHITE);
-                    DrawText(FormatText("Player %d %d", selecty_com, selectx_com), 15, 15, 30, RED);
+                   // DrawText(FormatText("Player %d %d", selecty_com, selectx_com), 15, 15, 30, RED);
                 }
             }
 
@@ -521,7 +521,7 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
     }*/
 
     if (checkLose(player)) {
-        DrawText(FormatText("Player %d WIN!", !player), 15, 15, 30, RED);
+        //DrawText(FormatText("Player %d WIN!", !player), 15, 15, 30, RED);
         DrawRectangle(0, 0, screenWidth, screenHeight, Fade(BLACK, 0.4f));
         Vector2 vecResult0 = {80, 180};
         Vector2 vecResult1 = {170, 300};
@@ -581,7 +581,17 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
             } 
         }
     } else if (checkCheckmate(player)) {
-        DrawText(FormatText("Player %d Checkmate!", player), 15, 15, 30, RED);
+    	if (player == 0)
+    	{
+    		DrawText(FormatText("Player %d Checkmate!", player+1), 15, 15, 30, WHITE);
+    		
+    	}
+    	else
+    	{
+    		DrawText(FormatText("Player %d Checkmate!", player+1), 15, 15, 30, BLACK);
+    		
+    	}
+        
     }
     EndDrawing();
 }
@@ -1156,7 +1166,7 @@ int Can_Strike(int num, int x, int y) {
             return 1;
         }
     } else if (((num == 9) || (num == 29)) && troop[num].flip == 1) {
-        if (abs(troop[num].y - y == 2) && abs(troop[num].x - x) == 1) {
+        if ((abs(troop[num].y - y) + abs(troop[num].x - x))==1 ) {
             return 1;
         }
     } else if (((num == 8) || (num == 28)) && troop[num].flip == 1) {
