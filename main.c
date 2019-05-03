@@ -383,12 +383,19 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
                 }
 
                 if (CanMove(Board[selecty][selectx], j, i) && summonint == 0) {
-                    DrawRectangle(90 + (j * scarfy.width / 76 + 5 * j + scarfy.width / 76 / 2), 68.0f + (i * scarfy.height - i * 2 + scarfy.height / 2), 10, 10, RED);
-                    DrawText(FormatText("x%i y%i ", j, i), 90 + (j * scarfy.width / 76 + 5 * j + scarfy.width / 76 / 2), 68.0f + (i * scarfy.height - i * 2 + scarfy.height / 2), 25, LIGHTGRAY);
+                	if ( player == 0)
+                	{
+                	DrawRectangle(90 + (j * scarfy.width / 76 + 5 * j + scarfy.width / 76 / 2), 68.0f + (i * scarfy.height - i * 2 + scarfy.height / 2), 10, 10, WHITE);
+                	}
+                	else
+                	{
+                	DrawRectangle(90 + (j * scarfy.width / 76 + 5 * j + scarfy.width / 76 / 2), 68.0f + (i * scarfy.height - i * 2 + scarfy.height / 2), 10, 10, BLACK);
+                	}
+                    //DrawText(FormatText("x%i y%i ", j, i), 90 + (j * scarfy.width / 76 + 5 * j + scarfy.width / 76 / 2), 68.0f + (i * scarfy.height - i * 2 + scarfy.height / 2), 25, LIGHTGRAY);
                 }
                 if (Can_Strike(Board[selecty][selectx], j, i) && summonint == 0) {
-                    DrawRectangle(90 + (j * scarfy.width / 76 + 5 * j + scarfy.width / 76 / 2), 68.0f + (i * scarfy.height - i * 2 + scarfy.height / 2), 10, 10, PINK);
-                    DrawText(FormatText("x%i y%i ", j, i), 90 + (j * scarfy.width / 76 + 5 * j + scarfy.width / 76 / 2), 68.0f + (i * scarfy.height - i * 2 + scarfy.height / 2), 25, LIGHTGRAY);
+                    DrawRectangle(90 + (j * scarfy.width / 76 + 5 * j + scarfy.width / 76 / 2), 68.0f + (i * scarfy.height - i * 2 + scarfy.height / 2), 10, 10, RED);
+                    //DrawText(FormatText("x%i y%i ", j, i), 90 + (j * scarfy.width / 76 + 5 * j + scarfy.width / 76 / 2), 68.0f + (i * scarfy.height - i * 2 + scarfy.height / 2), 25, LIGHTGRAY);
                 }
                 if (Can_Command(Board[selecty][selectx]))
                 {
@@ -449,8 +456,9 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
                 else if (summonint == 2) {
                     if ((selecty_com != selecty)&&(selectx_com != selectx)  && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)&&(selectx_com != 99))
                     {
-                    Command(Board[selecty_com][selectx_com],selectx, selecty, j, i);
-                    summonint = 0;//re-set
+                    if (Command(Board[selecty_com][selectx_com],selectx, selecty, j, i))
+                     {
+                     summonint = 0;//re-set
                     flip_troop(Board[selecty_com][selectx_com]);
                     if (player == 1) {
                         player = 0;
@@ -462,6 +470,8 @@ void drawGameboard(Texture2D scarfy, Texture2D board_pic) {
                         selecty = 99;
                     }
                     rotateBoard(); 
+                     } 
+                    
                     }
                    
                 }
@@ -880,8 +890,8 @@ void setupboard(Texture2D scarfy, Texture2D board_pic) {
         DrawTexture(board_pic, 0, 0, WHITE);
         //if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) troop_tie += 1;
         if (SET_duke == 0) DrawText("Player 1\nPlan The Duke", screenWidth / 3, screenHeight / 2, 50, RAYWHITE); //จัดใหม่
-        if (SET_duke == 1 || SET_duke == 4) DrawText("Player 2\nPlan Footman", screenWidth / 2.5, screenHeight / 4, 50, BLACK);
-        if (SET_duke == 2 || SET_duke == 3) DrawText("Player 1\nPlan Footman", screenWidth / 3, screenHeight / 2, 50, RAYWHITE);
+        if (SET_duke == 1 || SET_duke == 4) DrawText("Player 2\nPlan Footman", screenWidth / 2.5, screenHeight / 4+100, 50, BLACK);
+        if (SET_duke == 2 || SET_duke == 3) DrawText("Player 1\nPlan Footman", screenWidth / 3, screenHeight / 2-100, 50, RAYWHITE);
 
         for (int i = 0; i < 6; i++) {
             for (int j = 0; j < 6; j++) {
@@ -1030,7 +1040,7 @@ int checkCheckmate(int on_player) {
             int tr = Board[y][x];
             if (tr >= startTroop && tr <= startTroop + 20 && tr != 0) {
                 if (CanMove(tr, dukeTroop.x, dukeTroop.y) || Can_Strike(tr, dukeTroop.x, dukeTroop.y)) {
-                    return 1;
+                	return 1;
                 }
             }
         }
@@ -1057,7 +1067,7 @@ int Command(int num,int x1, int y1, int x2, int y2){
     {
         if (Is_ally(Board[y1][x1],num)&& !Is_ally(Board[y1][x1],Board[x2][y2]))
         {
-            if (((abs(numx-x1)<=1)&&((y1-numy)==1)) || ((y1-numy)==0)&&((abs(numx-x1)<=1))&&(abs(numx-x1)!=0))
+            if (((abs(numx-x1)<=1)&&((y1-numy)<=1))&&(abs(numx-x1)!=0))
             {
                 Board[y2][x2] = Board[y1][x1];
                 Board[y1][x1] = 0;
@@ -1076,6 +1086,7 @@ int Command(int num,int x1, int y1, int x2, int y2){
             }
         }
     }
+    return 0;
 }
 
 int Can_Command(int num) {
@@ -1084,7 +1095,7 @@ int Can_Command(int num) {
      if (Board[y1][x1] == 0) {
         return 0;
     }  
-    if (((num == 11) || (num == 31))&& troop[num].flip == 1) //12,32 = General
+    if (((num == 11) || (num == 31))&& troop[num].flip == 1) // General
     {
         
             for (int i = -1; i < 2; i++)
@@ -1093,7 +1104,7 @@ int Can_Command(int num) {
                 {
                     air = 1;
                 }
-                else if (Is_ally(Board[y1][x1], Board[y1+1][i]))
+                else if (Is_ally(Board[y1][x1], Board[y1+1][x1+i]))
                 {
                     ally = 1;
                 }
@@ -1145,7 +1156,7 @@ int Can_Strike(int num, int x, int y) {
             return 1;
         }
     } else if (((num == 9) || (num == 29)) && troop[num].flip == 1) {
-        if (abs(troop[num].y - y == 2) + abs(troop[num].x - x) == 1) {
+        if (abs(troop[num].y - y == 2) && abs(troop[num].x - x) == 1) {
             return 1;
         }
     } else if (((num == 8) || (num == 28)) && troop[num].flip == 1) {
@@ -1161,13 +1172,16 @@ int CanMove(int num, int x, int y) {
         1,21 = Duke
         2-4,22-24 = Footman
         5-7, 25-27 = PikeMan
-        8, 28 = Assassin
-        9, 29 = Bowman
-        10, 30 = Champion
-        11, 31 = Gragoon
-        12, 32 = General
-        14, 34  == Knight
-        15, 35 == Marsall
+        8, 28 = Bowman
+        9, 29 = Champion
+        10, 30 =  Ranger
+        11, 31 = General         //Gragoon
+        12, 32 = Knight
+        13, 33  = Marsall
+        14, 35 = Seer
+        15, 35 = Priest
+        16, 36 = Jester
+        17, 37 wizard   
      */
     int i, j, k, distance, ABSdis, disx, disy, tnx = troop[num].x, tny = troop[num].y;
     //if (num >= 21) y = abs(5-y);
@@ -1424,7 +1438,7 @@ int CanMove(int num, int x, int y) {
             else if ((y-troop[num].y==-2)&&(abs(x-troop[num].x)==1)){return 1;  }
         }
     }*/
-    else if ((num == 11) || (num == 31)) //12,32 = General
+    else if ((num == 11) || (num == 31)) //  = General
     {
         if (troop[num].flip == 0) {
             if ((distance == 1) && (disx == 0)) {
@@ -1443,7 +1457,7 @@ int CanMove(int num, int x, int y) {
                 return 1;
             }
         }
-    } else if ((num == 12) || (num == 32)) //13, 34 = knight
+    } else if ((num == 12) || (num == 32)) //  = knight
     {
         if (troop[num].flip == 0) {
             if (((distance == 2) && (disy == 2)) && (Board[y - 1][tnx] == 0)) {
@@ -1581,7 +1595,7 @@ int CanMove(int num, int x, int y) {
 
             //else if ((((y-troop[num].y)==-2)&&(x-troop[num].x)==0)&&(Board[y-1][x]==0))   return 1;
         }
-    } else if ((num == 16) || (num == 36)) //11,31 = Jester
+    } else if ((num == 16) || (num == 36)) //16, 36 = Jester
     {
         if (troop[num].flip == 0) {
             if (((y - tny) == -1) && (abs(disx) == 1)) return 1;
@@ -1592,7 +1606,7 @@ int CanMove(int num, int x, int y) {
             else if (abs(x - troop[num].x) > 2) return 0;
             else if (((y - troop[num].y > 0) && (abs(x - troop[num].x) > 0) && ((y - troop[num].y) == abs(x - troop[num].x)))) return 1;
         }
-    } else if ((num == 17) || (num == 37)) //18, 38 wizard
+    } else if ((num == 17) || (num == 37)) //17, 37 wizard 
     {
         if ((troop[num].flip == 0)) {
             if ((abs(y - troop[num].y) == 1) && (abs(x - troop[num].x) == 1)) {
